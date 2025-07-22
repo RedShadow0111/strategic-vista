@@ -1,13 +1,26 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PortfolioPulse } from "@/components/dashboard/PortfolioPulse";
+import { ProjectStatusMap } from "@/components/dashboard/ProjectStatusMap";
+import { ResourceHeatmap } from "@/components/dashboard/ResourceHeatmap";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <AppLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-sf font-bold text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground">Portfolio overview and key performance indicators</p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <PortfolioPulse />
+          <ProjectStatusMap />
+          <ResourceHeatmap />
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
