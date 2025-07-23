@@ -104,7 +104,7 @@ export function AppSidebar() {
 
       <SidebarContent className="p-2">
         <SidebarGroup>
-          <SidebarGroupLabel className={cn(!collapsed && "px-2 py-1 text-xs font-medium text-muted-foreground")}>
+          <SidebarGroupLabel className={cn(!collapsed && "px-2 py-1 text-xs font-medium text-sidebar-foreground/70")}>
             {!collapsed && "Main Navigation"}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -117,7 +117,7 @@ export function AppSidebar() {
                       className={({ isActive: navActive }) =>
                         cn(
                           "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group",
-                          "hover:bg-accent hover:text-accent-foreground",
+                          "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                           (isActive(item.url) || navActive) && 
                             "bg-primary text-primary-foreground shadow-apple-sm font-medium"
                         )
