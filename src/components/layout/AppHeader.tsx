@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { MyTasksDropdown } from "./MyTasksDropdown";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
@@ -52,6 +53,9 @@ export function AppHeader() {
 
         {/* Right section */}
         <div className="flex items-center gap-2">
+          {/* My Tasks */}
+          <MyTasksDropdown />
+          
           {/* Theme toggle */}
           <Button
             variant="ghost"

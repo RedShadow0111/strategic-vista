@@ -1,6 +1,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { AppHeader } from "./AppHeader";
+import { AppFooter } from "./AppFooter";
 import { Toaster } from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,8 @@ export function AppLayout({ children }: AppLayoutProps) {
               {children}
             </div>
           </main>
+          
+          <AppFooter />
         </div>
       </div>
       
