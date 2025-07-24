@@ -13,9 +13,12 @@ import {
   Search,
   SortAsc,
   Filter,
-  MoreHorizontal
+  MoreHorizontal,
+  Eye,
+  FolderOpen
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 const projects = [
   {
@@ -93,6 +96,16 @@ const getPriorityColor = (priority: string) => {
 };
 
 export default function Projects() {
+  const navigate = useNavigate();
+
+  const handleOpenProject = (projectId: number) => {
+    navigate(`/projects/${projectId}`);
+  };
+
+  const handleViewTasks = (projectId: number) => {
+    navigate(`/projects/${projectId}?tab=tasks`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -183,12 +196,12 @@ export default function Projects() {
           {/* Project List */}
           <div className="space-y-4">
             {projects.map((project) => (
-              <Card key={project.id} className="hover:shadow-apple-md transition-shadow">
+              <Card key={project.id} className="hover:shadow-apple-md transition-shadow cursor-pointer group">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
+                    <div className="flex-1" onClick={() => handleOpenProject(project.id)}>
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-sf font-semibold text-lg text-foreground">
+                        <h3 className="font-sf font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
                           {project.name}
                         </h3>
                         <Badge variant="secondary" className={getStatusColor(project.status)}>
@@ -274,11 +287,27 @@ export default function Projects() {
                       </div>
                       
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="flex-1">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewTasks(project.id);
+                          }}
+                        >
                           <FileStack className="w-4 h-4 mr-1" />
                           Tasks
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenProject(project.id);
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
                           Details
                         </Button>
                       </div>

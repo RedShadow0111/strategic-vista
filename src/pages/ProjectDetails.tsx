@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Clock, User, Calendar, CheckCircle, AlertCircle, Circle, MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const mockProject = {
   id: "1",
@@ -121,7 +121,15 @@ const getPriorityColor = (priority: string) => {
 
 export default function ProjectDetails() {
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState("overview");
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") || "overview";
+  const [selectedTab, setSelectedTab] = useState(tabFromUrl);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const urlTab = searchParams.get("tab") || "overview";
+    setSelectedTab(urlTab);
+  }, [searchParams]);
 
   return (
     <div className="space-y-6 animate-fade-in">
