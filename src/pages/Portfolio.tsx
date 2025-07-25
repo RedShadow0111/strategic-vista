@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,13 @@ import {
   AlertTriangle,
   Filter,
   Grid3X3,
-  List
+  List,
+  Eye
 } from "lucide-react";
+import { PortfolioFilters } from "@/components/portfolio/PortfolioFilters";
+import { PortfolioViewToggle } from "@/components/portfolio/PortfolioViewToggle";
+import { PortfolioGridView } from "@/components/portfolio/PortfolioGridView";
+import { useNavigate } from "react-router-dom";
 
 const portfolioProjects = [
   {
@@ -98,6 +104,14 @@ const getRiskColor = (risk: string) => {
 };
 
 export default function Portfolio() {
+  const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [filteredProjects, setFilteredProjects] = useState(portfolioProjects);
+
+  const handleViewDetails = (projectId: number) => {
+    navigate(`/projects/${projectId}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -109,14 +123,8 @@ export default function Portfolio() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <Grid3X3 className="w-4 h-4 mr-2" />
-            Grid View
-          </Button>
+          <PortfolioFilters onFiltersChange={setFilteredProjects} projects={portfolioProjects} />
+          <PortfolioViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
           <Button size="sm">
             <FolderOpen className="w-4 h-4 mr-2" />
             New Project
@@ -180,82 +188,94 @@ export default function Portfolio() {
       </div>
 
       {/* Project Matrix */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Grid3X3 className="w-5 h-5" />
-            Project Matrix
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {portfolioProjects.map((project) => (
-              <div 
-                key={project.id}
-                className="border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-sf font-semibold text-foreground mb-1">
-                      {project.name}
-                    </h3>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {project.timeline}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        {project.team} members
+      {viewMode === "list" ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <List className="w-5 h-5" />
+              Project Matrix
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {filteredProjects.map((project) => (
+                <div 
+                  key={project.id}
+                  className="border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h3 className="font-sf font-semibold text-foreground mb-1">
+                        {project.name}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {project.timeline}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          {project.team} members
+                        </div>
                       </div>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className={getStatusColor(project.status)}>
+                        {project.status}
+                      </Badge>
+                      <Badge variant="outline" className={getPriorityColor(project.priority)}>
+                        {project.priority}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className={getStatusColor(project.status)}>
-                      {project.status}
-                    </Badge>
-                    <Badge variant="outline" className={getPriorityColor(project.priority)}>
-                      {project.priority}
-                    </Badge>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium">{project.progress}%</span>
+                      </div>
+                      <Progress value={project.progress} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Budget</span>
+                        <span className="font-medium">{project.budget}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Spent: {project.spent}</span>
+                        <span className={getRiskColor(project.risk)}>
+                          Risk: {project.risk}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className="text-xs">
+                        {project.category}
+                      </Badge>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleViewDetails(project.id)}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View Details
+                      </Button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Progress</span>
-                      <span className="font-medium">{project.progress}%</span>
-                    </div>
-                    <Progress value={project.progress} className="h-2" />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Budget</span>
-                      <span className="font-medium">{project.budget}</span>
-                    </div>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Spent: {project.spent}</span>
-                      <span className={getRiskColor(project.risk)}>
-                        Risk: {project.risk}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs">
-                      {project.category}
-                    </Badge>
-                    <Button variant="ghost" size="sm">
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <PortfolioGridView 
+          projects={filteredProjects} 
+          onViewDetails={handleViewDetails}
+        />
+      )}
     </div>
   );
 }

@@ -525,10 +525,18 @@ export default function Analytics() {
                     </div>
                     
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => console.log('View details for', risk.type)}
+                      >
                         View Details
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => console.log('Mitigate risk for', risk.type)}
+                      >
                         Mitigate Risk
                       </Button>
                     </div>

@@ -132,7 +132,11 @@ export function MyTasksDropdown() {
           <div className="space-y-1">
             {pendingTasks.length > 0 ? (
               pendingTasks.map((task) => (
-                <DropdownMenuItem key={task.id} className="flex-col items-start p-3 space-y-2">
+                <DropdownMenuItem 
+                  key={task.id} 
+                  className="flex-col items-start p-3 space-y-2 cursor-pointer"
+                  onClick={() => window.location.href = `/tasks?taskId=${task.id}`}
+                >
                   <div className="w-full">
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
@@ -208,7 +212,10 @@ export function MyTasksDropdown() {
         </ScrollArea>
         
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-center text-sm text-primary">
+        <DropdownMenuItem 
+          className="text-center text-sm text-primary cursor-pointer"
+          onClick={() => window.location.href = '/tasks'}
+        >
           View All Tasks
         </DropdownMenuItem>
       </DropdownMenuContent>
