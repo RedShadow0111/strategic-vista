@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Users, 
   Calendar, 
@@ -15,9 +17,15 @@ import {
   UserPlus,
   Target,
   Briefcase,
-  Award
+  Award,
+  Edit,
+  History
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResourceSearchFilter } from "@/components/resources/ResourceSearchFilter";
+import { ResourceEditDialog } from "@/components/resources/ResourceEditDialog";
+import { ResourceHistoryDialog } from "@/components/resources/ResourceHistoryDialog";
+import { ResourceViewModeToggle } from "@/components/resources/ResourceViewModeToggle";
 
 const teamMembers = [
   {
@@ -114,6 +122,164 @@ const getGapColor = (gap: number) => {
 };
 
 export default function Resources() {
+  const [filteredMembers, setFilteredMembers] = useState(teamMembers);
+  const [selectedResource, setSelectedResource] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"normal" | "compact">("normal");
+  const [compactColumns, setCompactColumns] = useState(["name", "role", "department", "utilization"]);
+
+  const handleSearch = (query: string) => {
+    if (!query.trim()) {
+      setFilteredMembers(teamMembers);
+      return;
+    }
+    
+    const filtered = teamMembers.filter(member =>
+      member.name.toLowerCase().includes(query.toLowerCase()) ||
+      member.role.toLowerCase().includes(query.toLowerCase()) ||
+      member.department.toLowerCase().includes(query.toLowerCase()) ||
+      member.skills.some(skill => skill.toLowerCase().includes(query.toLowerCase())) ||
+      member.projects.some(project => project.toLowerCase().includes(query.toLowerCase()))
+    );
+    setFilteredMembers(filtered);
+  };
+
+  const handleFilter = (filters: any) => {
+    let filtered = [...teamMembers];
+    
+    if (filters.department && filters.department !== "all") {
+      filtered = filtered.filter(member => member.department === filters.department);
+    }
+    
+    if (filters.level && filters.level !== "all") {
+      filtered = filtered.filter(member => member.level === filters.level);
+    }
+    
+    if (filters.utilization && filters.utilization !== "all") {
+      filtered = filtered.filter(member => {
+        switch (filters.utilization) {
+          case "low":
+            return member.utilization < 70;
+          case "medium":
+            return member.utilization >= 70 && member.utilization <= 85;
+          case "high":
+            return member.utilization > 85;
+          default:
+            return true;
+        }
+      });
+    }
+    
+    setFilteredMembers(filtered);
+  };
+
+  const handleEditResource = (resource: any) => {
+    setSelectedResource(resource);
+    setEditDialogOpen(true);
+  };
+
+  const handleViewHistory = (resource: any) => {
+    setSelectedResource(resource);
+    setHistoryDialogOpen(true);
+  };
+
+  const renderCompactView = () => {
+    const getColumnValue = (member: any, columnId: string) => {
+      switch (columnId) {
+        case "name":
+          return member.name;
+        case "role":
+          return member.role;
+        case "department":
+          return <Badge variant="outline">{member.department}</Badge>;
+        case "level":
+          return <Badge variant="secondary">{member.level}</Badge>;
+        case "utilization":
+          return `${member.utilization}%`;
+        case "capacity":
+          return `${member.capacity}h`;
+        case "cost":
+          return member.cost;
+        case "skills":
+          return member.skills.slice(0, 2).map((skill: string, index: number) => (
+            <Badge key={index} variant="outline" className="text-xs mr-1">
+              {skill}
+            </Badge>
+          ));
+        case "projects":
+          return member.projects.slice(0, 1).map((project: string, index: number) => (
+            <div key={index} className="text-xs">{project}</div>
+          ));
+        default:
+          return "";
+      }
+    };
+
+    const getColumnHeader = (columnId: string) => {
+      const column = availableColumns.find(col => col.id === columnId);
+      return column ? column.label : columnId;
+    };
+
+    const availableColumns = [
+      { id: "name", label: "Name" },
+      { id: "role", label: "Role" },
+      { id: "department", label: "Department" },
+      { id: "level", label: "Level" },
+      { id: "utilization", label: "Utilization" },
+      { id: "capacity", label: "Capacity" },
+      { id: "cost", label: "Cost" },
+      { id: "skills", label: "Skills" },
+      { id: "projects", label: "Projects" }
+    ];
+
+    return (
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {compactColumns.map(columnId => (
+                  <TableHead key={columnId}>{getColumnHeader(columnId)}</TableHead>
+                ))}
+                <TableHead className="w-[100px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredMembers.map((member) => (
+                <TableRow key={member.id}>
+                  {compactColumns.map(columnId => (
+                    <TableCell key={columnId}>
+                      {getColumnValue(member, columnId)}
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditResource(member)}
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleViewHistory(member)}
+                      >
+                        <History className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -125,14 +291,13 @@ export default function Resources() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Search className="w-4 h-4 mr-2" />
-            Search
-          </Button>
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
+          <ResourceSearchFilter onSearch={handleSearch} onFilter={handleFilter} />
+          <ResourceViewModeToggle
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            compactColumns={compactColumns}
+            onCompactColumnsChange={setCompactColumns}
+          />
           <Button size="sm">
             <UserPlus className="w-4 h-4 mr-2" />
             Add Resource
@@ -206,8 +371,9 @@ export default function Resources() {
 
         <TabsContent value="team" className="space-y-6 mt-6">
           {/* Team Members */}
-          <div className="space-y-4">
-            {teamMembers.map((member) => (
+          {viewMode === "normal" ? (
+            <div className="space-y-4">
+              {filteredMembers.map((member) => (
               <Card key={member.id} className="hover:shadow-apple-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -274,15 +440,35 @@ export default function Resources() {
                           </div>
                         ))}
                       </div>
-                      <Button variant="ghost" size="sm" className="mt-2 h-7 text-xs">
-                        View Details
-                      </Button>
+                      <div className="flex gap-2 mt-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 text-xs"
+                          onClick={() => handleEditResource(member)}
+                        >
+                          <Edit className="w-3 h-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-7 text-xs"
+                          onClick={() => handleViewHistory(member)}
+                        >
+                          <History className="w-3 h-3 mr-1" />
+                          History
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            renderCompactView()
+          )}
         </TabsContent>
 
         <TabsContent value="capacity" className="space-y-6 mt-6">
@@ -478,6 +664,19 @@ export default function Resources() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      <ResourceEditDialog
+        resource={selectedResource}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
+      
+      <ResourceHistoryDialog
+        resource={selectedResource}
+        open={historyDialogOpen}
+        onOpenChange={setHistoryDialogOpen}
+      />
     </div>
   );
 }

@@ -1,7 +1,16 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { 
   BarChart3, 
   TrendingUp, 
@@ -19,6 +28,9 @@ import {
   RefreshCw
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { RiskDetailsDialog } from "@/components/analytics/RiskDetailsDialog";
+import { MitigateRiskDialog } from "@/components/analytics/MitigateRiskDialog";
 import {
   ResponsiveContainer,
   LineChart,
@@ -119,6 +131,34 @@ const getTrendIcon = (trend: string) => {
 };
 
 export default function Analytics() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState({
+    timeRange: "6months",
+    portfolio: "all",
+    department: "all"
+  });
+  const [selectedRisk, setSelectedRisk] = useState<any>(null);
+  const [riskDetailsOpen, setRiskDetailsOpen] = useState(false);
+  const [mitigateRiskOpen, setMitigateRiskOpen] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    toast.loading("Refreshing analytics data...");
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    setIsRefreshing(false);
+    toast.success("Analytics data refreshed successfully");
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    setSelectedFilters(prev => ({ ...prev, [key]: value }));
+    toast.info(`Filter applied: ${key} = ${value}`);
+  };
+
+  const activeFiltersCount = Object.values(selectedFilters).filter(value => value !== "all").length;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -130,14 +170,105 @@ export default function Analytics() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
+          {/* Filter Dropdown */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Filter className="w-4 h-4" />
+                Filter
+                {activeFiltersCount > 0 && (
+                  <Badge variant="secondary" className="ml-1">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80" align="end">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium">Analytics Filters</h4>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setSelectedFilters({ timeRange: "6months", portfolio: "all", department: "all" })}
+                  >
+                    Clear all
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Time Range</label>
+                    <Select
+                      value={selectedFilters.timeRange}
+                      onValueChange={(value) => handleFilterChange("timeRange", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1month">Last Month</SelectItem>
+                        <SelectItem value="3months">Last 3 Months</SelectItem>
+                        <SelectItem value="6months">Last 6 Months</SelectItem>
+                        <SelectItem value="1year">Last Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Portfolio</label>
+                    <Select
+                      value={selectedFilters.portfolio}
+                      onValueChange={(value) => handleFilterChange("portfolio", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Portfolios</SelectItem>
+                        <SelectItem value="technology">Technology Portfolio</SelectItem>
+                        <SelectItem value="digital">Digital Transformation</SelectItem>
+                        <SelectItem value="operations">IT Operations</SelectItem>
+                        <SelectItem value="innovation">Product Innovation</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Department</label>
+                    <Select
+                      value={selectedFilters.department}
+                      onValueChange={(value) => handleFilterChange("department", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Departments</SelectItem>
+                        <SelectItem value="engineering">Engineering</SelectItem>
+                        <SelectItem value="design">Design</SelectItem>
+                        <SelectItem value="pmo">PMO</SelectItem>
+                        <SelectItem value="qa">QA</SelectItem>
+                        <SelectItem value="devops">DevOps</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Refresh Button */}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
+
           <Button size="sm">
             <Download className="w-4 h-4 mr-2" />
             Export Report
@@ -528,14 +659,20 @@ export default function Analytics() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => console.log('View details for', risk.type)}
+                        onClick={() => {
+                          setSelectedRisk(risk);
+                          setRiskDetailsOpen(true);
+                        }}
                       >
                         View Details
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm"
-                        onClick={() => console.log('Mitigate risk for', risk.type)}
+                        onClick={() => {
+                          setSelectedRisk(risk);
+                          setMitigateRiskOpen(true);
+                        }}
                       >
                         Mitigate Risk
                       </Button>
@@ -547,6 +684,19 @@ export default function Analytics() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Risk Dialogs */}
+      <RiskDetailsDialog
+        risk={selectedRisk}
+        open={riskDetailsOpen}
+        onOpenChange={setRiskDetailsOpen}
+      />
+      
+      <MitigateRiskDialog
+        risk={selectedRisk}
+        open={mitigateRiskOpen}
+        onOpenChange={setMitigateRiskOpen}
+      />
     </div>
   );
 }
