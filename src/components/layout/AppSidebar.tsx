@@ -43,6 +43,12 @@ const navigationItems = [
     description: "Project management & scheduling"
   },
   {
+    title: "Tasks",
+    url: "/tasks",
+    icon: FileStack,
+    description: "Task management & tracking"
+  },
+  {
     title: "Resources",
     url: "/resources",
     icon: Users,
