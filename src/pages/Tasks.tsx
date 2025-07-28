@@ -29,8 +29,11 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { TaskEditDialog } from "@/components/tasks/TaskEditDialog";
 import { TaskGanttView } from "@/components/tasks/TaskGanttView";
 import { TaskCompactView } from "@/components/tasks/TaskCompactView";
+import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
+import { NewTaskDialog } from "@/components/tasks/NewTaskDialog";
+import { TaskEditFooter } from "@/components/tasks/TaskEditFooter";
 import { ExternalTaskGateway } from "@/components/external-tasks/ExternalTaskGateway";
-import { InterdisciplinaryWorkflow } from "@/components/interdisciplinary/InterdisciplinaryWorkflow";
+import { CompactWorkflowView } from "@/components/interdisciplinary/CompactWorkflowView";
 import { DigitalTwinTask } from "@/components/digital-twin/DigitalTwinTask";
 
 const mockTasks = [
@@ -141,7 +144,9 @@ export default function Tasks() {
   const tab = searchParams.get('tab') || 'normal';
   
   const [selectedTask, setSelectedTask] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"normal" | "compact" | "gantt" | "external" | "interdisciplinary" | "digital-twin">("gantt");
+  const [newTaskOpen, setNewTaskOpen] = useState(false);
+  const [editInFooter, setEditInFooter] = useState(false);
+  const [viewMode, setViewMode] = useState<"task-list" | "kanban" | "gantt" | "external" | "workflow" | "digital-twin">("kanban");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortField, setSortField] = useState<string | null>(null);
@@ -156,6 +161,7 @@ export default function Tasks() {
 
   const handleEditTask = (task: any) => {
     setSelectedTask(task);
+    setEditInFooter(true);
   };
 
   const handleSort = (field: string) => {
@@ -229,16 +235,16 @@ export default function Tasks() {
         </div>
         <div className="flex items-center gap-3">
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as any)} className="w-full max-w-2xl">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="normal">Normal</TabsTrigger>
-              <TabsTrigger value="compact">Compact</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="task-list">Task List</TabsTrigger>
+              <TabsTrigger value="kanban">Kanban</TabsTrigger>
               <TabsTrigger value="gantt">Gantt</TabsTrigger>
               <TabsTrigger value="external">External</TabsTrigger>
-              <TabsTrigger value="interdisciplinary">Workflow</TabsTrigger>
+              <TabsTrigger value="workflow">Workflow</TabsTrigger>
               <TabsTrigger value="digital-twin">Digital Twin</TabsTrigger>
             </TabsList>
           </Tabs>
-          <Button size="sm">
+          <Button size="sm" onClick={() => setNewTaskOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             New Task
           </Button>
@@ -283,146 +289,12 @@ export default function Tasks() {
 
       {/* Task Views */}
       <Tabs value={viewMode} className="w-full">
-        <TabsContent value="normal">
-          {/* Sorting Headers */}
-          <div className="flex items-center gap-4 mb-4 pb-2 border-b border-border">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => handleSort('title')}
-              className="font-medium"
-            >
-              Title {getSortIcon('title')}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => handleSort('status')}
-              className="font-medium"
-            >
-              Status {getSortIcon('status')}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => handleSort('priority')}
-              className="font-medium"
-            >
-              Priority {getSortIcon('priority')}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => handleSort('dueDate')}
-              className="font-medium"
-            >
-              Due Date {getSortIcon('dueDate')}
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => handleSort('progress')}
-              className="font-medium"
-            >
-              Progress {getSortIcon('progress')}
-            </Button>
-          </div>
-          
-          <div className="space-y-4">
-            {sortedTasks.map((task) => (
-              <Card key={task.id} className="hover:shadow-apple-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-sf font-semibold text-lg text-foreground">
-                          {task.title}
-                        </h3>
-                        <Badge variant="secondary" className={getStatusColor(task.status)}>
-                          {task.status}
-                        </Badge>
-                        <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground text-sm mb-3">
-                        {task.description}
-                      </p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditTask(task)}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit Task
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="text-muted-foreground">Progress</span>
-                          <span className="font-medium">{task.progress}%</span>
-                        </div>
-                        <Progress value={task.progress} className="h-2" />
-                      </div>
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {task.startDate}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          Due: {task.dueDate}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-2">Assignee & Project</div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Avatar className="w-6 h-6">
-                          <AvatarFallback className="text-xs">
-                            {task.avatar}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-foreground">{task.assignee}</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground">{task.project}</div>
-                    </div>
-
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-2">Time Tracking</div>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Estimated:</span>
-                          <span className="font-medium">{task.estimatedHours}h</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Actual:</span>
-                          <span className="font-medium">{task.actualHours}h</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {task.tags.map((tag: string, index: number) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+        <TabsContent value="task-list">
+          <TaskCompactView tasks={sortedTasks} onEditTask={handleEditTask} />
         </TabsContent>
 
-        <TabsContent value="compact">
-          <TaskCompactView tasks={sortedTasks} onEditTask={handleEditTask} />
+        <TabsContent value="kanban">
+          <TaskKanbanView tasks={sortedTasks} onEditTask={handleEditTask} />
         </TabsContent>
 
         <TabsContent value="gantt">
@@ -433,8 +305,8 @@ export default function Tasks() {
           <ExternalTaskGateway />
         </TabsContent>
 
-        <TabsContent value="interdisciplinary">
-          <InterdisciplinaryWorkflow />
+        <TabsContent value="workflow">
+          <CompactWorkflowView />
         </TabsContent>
 
         <TabsContent value="digital-twin">
@@ -442,11 +314,21 @@ export default function Tasks() {
         </TabsContent>
       </Tabs>
 
-      {/* Edit Task Dialog */}
-      <TaskEditDialog
+      {/* New Task Dialog */}
+      <NewTaskDialog
+        open={newTaskOpen}
+        onOpenChange={setNewTaskOpen}
+        projectId={projectId}
+      />
+
+      {/* Edit Task Footer */}
+      <TaskEditFooter
         task={selectedTask}
-        open={!!selectedTask}
-        onOpenChange={(open) => !open && setSelectedTask(null)}
+        open={editInFooter}
+        onClose={() => {
+          setEditInFooter(false);
+          setSelectedTask(null);
+        }}
       />
     </div>
   );

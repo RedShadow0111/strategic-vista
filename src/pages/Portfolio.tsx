@@ -22,6 +22,7 @@ import { PortfolioFilters } from "@/components/portfolio/PortfolioFilters";
 import { PortfolioViewToggle } from "@/components/portfolio/PortfolioViewToggle";
 import { PortfolioGridView } from "@/components/portfolio/PortfolioGridView";
 import { PortfolioManagement } from "@/components/portfolio/PortfolioManagement";
+import { EditProjectDialog } from "@/components/portfolio/EditProjectDialog";
 
 const portfolioProjects = [
   {
