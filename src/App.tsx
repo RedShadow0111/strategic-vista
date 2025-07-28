@@ -12,6 +12,7 @@ import Resources from "./pages/Resources";
 import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import Tasks from "./pages/Tasks";
+import JobBoard from "./pages/JobBoard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="/resources" element={<Resources />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/job-board" element={<JobBoard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>
