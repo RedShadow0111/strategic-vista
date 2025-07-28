@@ -29,7 +29,7 @@ const getUtilizationLabel = (utilization: number) => {
   return "Available";
 };
 
-export function ResourceHeatmap() {
+export function ResourceHeatmap({ dragHandle }: { dragHandle?: React.ReactNode }) {
   const weekLabels = ["W45", "W46", "W47", "W48", "W49", "W50", "W51", "W52"];
   
   // Calculate averages for summary
@@ -47,6 +47,7 @@ export function ResourceHeatmap() {
       description="Team capacity utilization over the next 8 weeks"
       icon={Users}
       size="lg"
+      dragHandle={dragHandle}
     >
       <div className="space-y-6">
         {/* Summary stats */}

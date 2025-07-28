@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export function PortfolioPulse() {
+export function PortfolioPulse({ dragHandle }: { dragHandle?: React.ReactNode }) {
   const pulseScore = 78;
   const trend = 5.2; // positive trend
   const status = pulseScore >= 80 ? "excellent" : pulseScore >= 60 ? "good" : "needs-attention";
@@ -21,6 +21,7 @@ export function PortfolioPulse() {
       description="Overall portfolio health indicator"
       icon={Activity}
       size="md"
+      dragHandle={dragHandle}
     >
       <div className="space-y-6">
         {/* Main score display */}

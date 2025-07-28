@@ -39,7 +39,7 @@ const getStatusColor = (status: Project["status"]) => {
   }
 };
 
-export function ProjectStatusMap() {
+export function ProjectStatusMap({ dragHandle }: { dragHandle?: React.ReactNode }) {
   const getBubbleSize = (budget: number) => {
     const minSize = 40;
     const maxSize = 80;
@@ -54,6 +54,7 @@ export function ProjectStatusMap() {
       description="Risk vs Progress matrix with budget-based sizing"
       icon={Target}
       size="lg"
+      dragHandle={dragHandle}
     >
       <div className="space-y-4">
         {/* Chart area */}
