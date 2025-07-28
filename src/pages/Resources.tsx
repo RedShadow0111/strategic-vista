@@ -26,6 +26,10 @@ import { ResourceSearchFilter } from "@/components/resources/ResourceSearchFilte
 import { ResourceEditDialog } from "@/components/resources/ResourceEditDialog";
 import { ResourceHistoryDialog } from "@/components/resources/ResourceHistoryDialog";
 import { ResourceViewModeToggle } from "@/components/resources/ResourceViewModeToggle";
+import { HireNewResourcesDialog } from "@/components/resources/HireNewResourcesDialog";
+import { SkillDevelopmentPlanDialog } from "@/components/resources/SkillDevelopmentPlanDialog";
+import { CapacityPlanningDialog } from "@/components/resources/CapacityPlanningDialog";
+import { ResourceOptimizationDialog } from "@/components/resources/ResourceOptimizationDialog";
 
 const teamMembers = [
   {
@@ -128,6 +132,10 @@ export default function Resources() {
   const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"normal" | "compact">("normal");
   const [compactColumns, setCompactColumns] = useState(["name", "role", "department", "utilization"]);
+  const [hireDialogOpen, setHireDialogOpen] = useState(false);
+  const [skillDialogOpen, setSkillDialogOpen] = useState(false);
+  const [capacityDialogOpen, setCapacityDialogOpen] = useState(false);
+  const [optimizationDialogOpen, setOptimizationDialogOpen] = useState(false);
 
   const handleSearch = (query: string) => {
     if (!query.trim()) {
@@ -185,23 +193,19 @@ export default function Resources() {
   };
 
   const handleHireNewResources = () => {
-    // Implementation for hiring new resources
-    alert("Opening resource hiring workflow...");
+    setHireDialogOpen(true);
   };
 
   const handleSkillDevelopmentPlan = () => {
-    // Implementation for skill development planning
-    alert("Opening skill development planning...");
+    setSkillDialogOpen(true);
   };
 
   const handleCapacityPlanning = () => {
-    // Implementation for capacity planning
-    alert("Opening capacity planning tools...");
+    setCapacityDialogOpen(true);
   };
 
   const handleResourceOptimization = () => {
-    // Implementation for resource optimization
-    alert("Opening resource optimization analysis...");
+    setOptimizationDialogOpen(true);
   };
 
   const renderCompactView = () => {
@@ -711,6 +715,26 @@ export default function Resources() {
         resource={selectedResource}
         open={historyDialogOpen}
         onOpenChange={setHistoryDialogOpen}
+      />
+
+      <HireNewResourcesDialog
+        open={hireDialogOpen}
+        onOpenChange={setHireDialogOpen}
+      />
+
+      <SkillDevelopmentPlanDialog
+        open={skillDialogOpen}
+        onOpenChange={setSkillDialogOpen}
+      />
+
+      <CapacityPlanningDialog
+        open={capacityDialogOpen}
+        onOpenChange={setCapacityDialogOpen}
+      />
+
+      <ResourceOptimizationDialog
+        open={optimizationDialogOpen}
+        onOpenChange={setOptimizationDialogOpen}
       />
     </div>
   );

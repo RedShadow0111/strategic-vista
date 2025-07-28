@@ -9,7 +9,8 @@ import {
   ChevronDown,
   Search,
   MessageSquare,
-  Bot
+  Bot,
+  Briefcase
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -27,6 +28,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { AiAssistantChat } from "@/components/ai-assistant/AiAssistantChat";
+import { JobBoard } from "@/components/external-tasks/JobBoard";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const navigationItems = [
   {
@@ -80,6 +83,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [isJobBoardOpen, setIsJobBoardOpen] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -154,10 +158,33 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* AI Assistant */}
+        {/* Additional Tools */}
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent>
             <SidebarMenu>
+              {/* Job Board */}
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={() => setIsJobBoardOpen(true)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group",
+                    "text-sidebar-foreground hover:bg-gradient-to-r hover:from-secondary/10 hover:to-secondary-glow/10",
+                    "hover:text-secondary font-medium"
+                  )}
+                >
+                  <div className="relative">
+                    <Briefcase className="w-5 h-5" />
+                  </div>
+                  {!collapsed && (
+                    <div className="flex-1 min-w-0">
+                      <div className="font-sf font-medium text-sm">Биржа заданий</div>
+                      <div className="text-xs opacity-70 truncate">Внешние исполнители</div>
+                    </div>
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              {/* AI Assistant */}
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   onClick={() => setIsChatOpen(!isChatOpen)}
@@ -212,6 +239,16 @@ export function AppSidebar() {
           <span className="text-white">AI Помощник</span>
         </Button>
       )}
+
+      {/* Job Board Dialog */}
+      <Dialog open={isJobBoardOpen} onOpenChange={setIsJobBoardOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Биржа заданий</DialogTitle>
+          </DialogHeader>
+          <JobBoard />
+        </DialogContent>
+      </Dialog>
 
       {/* AI Assistant Chat */}
       <AiAssistantChat 

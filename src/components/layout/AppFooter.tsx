@@ -27,52 +27,12 @@ const getStatusColor = (status: string) => {
 };
 
 export function AppFooter() {
-  if (!currentProject.projectName) {
-    return null; // Не показываем footer если нет активного проекта
-  }
-
   return (
     <footer className="border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center justify-between px-4 py-3">
-        {/* Project Info */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Briefcase className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Portfolio:</span>
-            <span className="font-medium">{currentProject.portfolioName}</span>
-          </div>
-          
-          <div className="w-px h-4 bg-border" />
-          
-          <div className="flex items-center gap-2 text-sm">
-            <FolderOpen className="w-4 h-4 text-muted-foreground" />
-            <span className="text-muted-foreground">Project:</span>
-            <span className="font-medium">{currentProject.projectName}</span>
-          </div>
-          
-          <div className="w-px h-4 bg-border" />
-          
-          <Badge className={getStatusColor(currentProject.status)}>
-            {currentProject.status}
-          </Badge>
-        </div>
-
-        {/* Progress Info */}
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Progress:</span>
-            <div className="flex items-center gap-2 min-w-[120px]">
-              <Progress value={currentProject.progress} className="flex-1" />
-              <span className="font-medium text-sm">{currentProject.progress}%</span>
-            </div>
-          </div>
-          
-          <div className="w-px h-4 bg-border" />
-          
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            <span>Updated {currentProject.lastUpdated}</span>
-          </div>
+      <div className="flex items-center justify-center px-4 py-3">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Clock className="w-3 h-3" />
+          <span>Last updated {currentProject.lastUpdated}</span>
         </div>
       </div>
     </footer>

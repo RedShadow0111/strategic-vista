@@ -141,7 +141,7 @@ export default function Tasks() {
   const tab = searchParams.get('tab') || 'normal';
   
   const [selectedTask, setSelectedTask] = useState<any>(null);
-  const [viewMode, setViewMode] = useState<"normal" | "compact" | "gantt" | "external" | "interdisciplinary" | "digital-twin">(tab === 'gantt' ? 'gantt' : 'normal');
+  const [viewMode, setViewMode] = useState<"normal" | "compact" | "gantt" | "external" | "interdisciplinary" | "digital-twin">("gantt");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortField, setSortField] = useState<string | null>(null);
