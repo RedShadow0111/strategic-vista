@@ -713,8 +713,23 @@ export default function Resources() {
 
                 <div className="space-y-4">
                   <h4 className="font-sf font-medium text-foreground">Additional Actions</h4>
-                  <div className="text-center text-muted-foreground">
-                    Additional planning tools coming soon...
+                  <div className="grid grid-cols-1 gap-3">
+                    <Button variant="outline" className="w-full justify-start">
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Hire new resources
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Award className="w-4 h-4 mr-2" />
+                      Skill development plan
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      Capacity planning
+                    </Button>
+                    <Button variant="outline" className="w-full justify-start">
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Resource optimization
+                    </Button>
                   </div>
                 </div>
               </div>

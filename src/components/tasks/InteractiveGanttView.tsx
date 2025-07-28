@@ -236,310 +236,260 @@ export function InteractiveGanttView({ tasks }: InteractiveGanttViewProps) {
       </CardHeader>
       
       <CardContent>
-        <Tabs defaultValue="gantt" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="gantt">Диаграмма</TabsTrigger>
-            <TabsTrigger value="filters">Фильтры</TabsTrigger>
-            <TabsTrigger value="settings">Настройки</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="filters" className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Поиск задач</Label>
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Найти задачу..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Проект</Label>
-                <Select value={filterProject} onValueChange={setFilterProject}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все проекты</SelectItem>
-                    {uniqueProjects.map(project => (
-                      <SelectItem key={project} value={project}>{project}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Статус</Label>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все статусы</SelectItem>
-                    {uniqueStatuses.map(status => (
-                      <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Исполнитель</Label>
-                <Select value={filterAssignee} onValueChange={setFilterAssignee}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все исполнители</SelectItem>
-                    {uniqueAssignees.map(assignee => (
-                      <SelectItem key={assignee} value={assignee}>{assignee}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        <div className="space-y-4">
+          {/* Интегрированная панель управления */}
+          <div className="flex flex-wrap gap-4 p-4 bg-muted/30 rounded-lg">
+            {/* Поиск */}
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Найти задачу..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8"
+                />
               </div>
             </div>
-          </TabsContent>
 
-          <TabsContent value="settings" className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <Label>Масштаб времени</Label>
-                <Select value={zoomLevel} onValueChange={(value: ZoomLevel) => setZoomLevel(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="days">Дни</SelectItem>
-                    <SelectItem value="weeks">Недели</SelectItem>
-                    <SelectItem value="months">Месяцы</SelectItem>
-                    <SelectItem value="quarters">Кварталы</SelectItem>
-                    <SelectItem value="years">Годы</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Фильтры */}
+            <Select value={filterProject} onValueChange={setFilterProject}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Проект" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все проекты</SelectItem>
+                {uniqueProjects.map(project => (
+                  <SelectItem key={project} value={project}>{project}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <div className="space-y-2">
-                <Label>Группировка</Label>
-                <Select value={groupingMode} onValueChange={(value: GroupingMode) => setGroupingMode(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Без группировки</SelectItem>
-                    <SelectItem value="project">По проектам</SelectItem>
-                    <SelectItem value="assignee">По исполнителям</SelectItem>
-                    <SelectItem value="status">По статусу</SelectItem>
-                    <SelectItem value="priority">По приоритету</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Статус" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все статусы</SelectItem>
+                {uniqueStatuses.map(status => (
+                  <SelectItem key={status} value={status}>{status}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <div className="space-y-2">
-                <Label>Зависимости</Label>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="dependencies"
-                    checked={showDependencies}
-                    onCheckedChange={setShowDependencies}
-                  />
-                  <Label htmlFor="dependencies">
-                    {showDependencies ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                  </Label>
-                </div>
-              </div>
+            <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Исполнитель" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Все исполнители</SelectItem>
+                {uniqueAssignees.map(assignee => (
+                  <SelectItem key={assignee} value={assignee}>{assignee}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-              <div className="space-y-2">
-                <Label>Действия</Label>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setSelectedTasks([])}>
-                    Снять выделение
-                  </Button>
-                </div>
-              </div>
+            {/* Настройки */}
+            <Select value={groupingMode} onValueChange={(value: GroupingMode) => setGroupingMode(value)}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Группировка" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Без группировки</SelectItem>
+                <SelectItem value="project">По проектам</SelectItem>
+                <SelectItem value="assignee">По исполнителям</SelectItem>
+                <SelectItem value="status">По статусу</SelectItem>
+                <SelectItem value="priority">По приоритету</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="dependencies"
+                checked={showDependencies}
+                onCheckedChange={setShowDependencies}
+              />
+              <Label htmlFor="dependencies" className="text-sm">
+                Зависимости
+              </Label>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="gantt" className="space-y-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Button variant="outline" size="sm" onClick={() => {
-                const currentIndex = ["days", "weeks", "months", "quarters", "years"].indexOf(zoomLevel);
-                if (currentIndex > 0) {
-                  setZoomLevel(["days", "weeks", "months", "quarters", "years"][currentIndex - 1] as ZoomLevel);
-                }
-              }}>
-                <ZoomIn className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => {
-                const currentIndex = ["days", "weeks", "months", "quarters", "years"].indexOf(zoomLevel);
-                if (currentIndex < 4) {
-                  setZoomLevel(["days", "weeks", "months", "quarters", "years"][currentIndex + 1] as ZoomLevel);
-                }
-              }}>
-                <ZoomOut className="w-4 h-4" />
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Масштаб: {zoomLevel === "days" ? "Дни" : zoomLevel === "weeks" ? "Недели" : zoomLevel === "months" ? "Месяцы" : zoomLevel === "quarters" ? "Кварталы" : "Годы"}
-              </span>
-            </div>
+          {/* Управление масштабом */}
+          <div className="flex items-center gap-2 mb-4">
+            <Button variant="outline" size="sm" onClick={() => {
+              const currentIndex = ["days", "weeks", "months", "quarters", "years"].indexOf(zoomLevel);
+              if (currentIndex > 0) {
+                setZoomLevel(["days", "weeks", "months", "quarters", "years"][currentIndex - 1] as ZoomLevel);
+              }
+            }}>
+              <ZoomIn className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => {
+              const currentIndex = ["days", "weeks", "months", "quarters", "years"].indexOf(zoomLevel);
+              if (currentIndex < 4) {
+                setZoomLevel(["days", "weeks", "months", "quarters", "years"][currentIndex + 1] as ZoomLevel);
+              }
+            }}>
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Масштаб: {zoomLevel === "days" ? "Дни" : zoomLevel === "weeks" ? "Недели" : zoomLevel === "months" ? "Месяцы" : zoomLevel === "quarters" ? "Кварталы" : "Годы"}
+            </span>
+          </div>
 
-            <ScrollArea className="w-full">
-              <div className="min-w-[1200px]">
-                {/* Временная шкала */}
-                <div className="flex border-b border-border pb-2 mb-4">
-                  <div className="w-80 flex-shrink-0 font-medium text-muted-foreground">
-                    Задачи
-                  </div>
-                  <div className="flex-1 relative">
-                    <div className="flex">
-                      {timeUnits.map((unit, index) => (
-                        <div
-                          key={index}
-                          className="border-r border-border text-center text-xs font-medium text-muted-foreground py-2"
-                          style={{ minWidth: `${unitWidth}px` }}
-                        >
-                          {unit.label}
-                        </div>
-                      ))}
-                    </div>
+          <ScrollArea className="w-full">
+            <div className="min-w-[1200px]">
+              {/* Временная шкала */}
+              <div className="flex border-b border-border pb-2 mb-4">
+                <div className="w-80 flex-shrink-0 font-medium text-muted-foreground">
+                  Задачи
+                </div>
+                <div className="flex-1 relative">
+                  <div className="flex">
+                    {timeUnits.map((unit, index) => (
+                      <div
+                        key={index}
+                        className="border-r border-border text-center text-xs font-medium text-muted-foreground py-2"
+                        style={{ minWidth: `${unitWidth}px` }}
+                      >
+                        {unit.label}
+                      </div>
+                    ))}
                   </div>
                 </div>
+              </div>
 
-                {/* Группы задач */}
-                <div className="space-y-6">
-                  {Object.entries(groupedTasks).map(([groupName, groupTasks]) => (
-                    <div key={groupName} className="space-y-2">
-                      {groupingMode !== "none" && (
-                        <div className="flex items-center gap-2 py-2 border-b border-dashed">
-                          <FolderOpen className="w-4 h-4 text-primary" />
-                          <span className="font-medium text-primary">{groupName}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {groupTasks.length} задач
-                          </Badge>
-                        </div>
-                      )}
+              {/* Группы задач */}
+              <div className="space-y-6">
+                {Object.entries(groupedTasks).map(([groupName, groupTasks]) => (
+                  <div key={groupName} className="space-y-2">
+                    {groupingMode !== "none" && (
+                      <div className="flex items-center gap-2 py-2 border-b border-dashed">
+                        <FolderOpen className="w-4 h-4 text-primary" />
+                        <span className="font-medium text-primary">{groupName}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {groupTasks.length} задач
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    {groupTasks.map((task) => {
+                      const position = getTaskPosition(task.startDate, task.dueDate);
+                      const isSelected = selectedTasks.includes(task.id);
                       
-                      {groupTasks.map((task) => {
-                        const position = getTaskPosition(task.startDate, task.dueDate);
-                        const isSelected = selectedTasks.includes(task.id);
-                        
-                        return (
-                          <div 
-                            key={task.id} 
-                            className={`flex items-center group cursor-pointer ${isSelected ? 'bg-primary/5' : ''}`}
-                            onClick={() => toggleTaskSelection(task.id)}
-                          >
-                            {/* Информация о задаче */}
-                            <div className="w-80 flex-shrink-0 pr-4">
-                              <div className={`border-l-4 ${getPriorityColor(task.priority)} pl-3 py-2`}>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-medium text-sm text-foreground">
-                                    {task.title}
-                                  </span>
-                                  <Badge variant="secondary" className={`${getStatusColor(task.status)} text-white text-xs`}>
-                                    {task.status}
-                                  </Badge>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Avatar className="w-5 h-5">
-                                    <AvatarFallback className="text-xs">
-                                      {task.avatar}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <span className="text-xs text-muted-foreground">
-                                    {task.assignee}
-                                  </span>
-                                </div>
-                                {groupingMode !== "project" && (
-                                  <div className="text-xs text-muted-foreground mt-1">
-                                    {task.project}
-                                  </div>
-                                )}
+                      return (
+                        <div 
+                          key={task.id} 
+                          className={`flex items-center group cursor-pointer ${isSelected ? 'bg-primary/5' : ''}`}
+                          onClick={() => toggleTaskSelection(task.id)}
+                        >
+                          {/* Информация о задаче */}
+                          <div className="w-80 flex-shrink-0 pr-4">
+                            <div className={`border-l-4 ${getPriorityColor(task.priority)} pl-3 py-2`}>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium text-sm text-foreground">
+                                  {task.title}
+                                </span>
+                                <Badge variant="secondary" className={`${getStatusColor(task.status)} text-white text-xs`}>
+                                  {task.status}
+                                </Badge>
                               </div>
-                            </div>
-
-                            {/* Временная диаграмма */}
-                            <div className="flex-1 relative h-12 border border-border bg-accent/20">
-                              <div
-                                className={`absolute top-2 h-8 ${getStatusColor(task.status)} rounded opacity-80 group-hover:opacity-100 transition-all ${isSelected ? 'ring-2 ring-primary' : ''}`}
-                                style={{
-                                  left: `${position.left}%`,
-                                  width: `${position.width}%`,
-                                  minWidth: '20px'
-                                }}
-                              >
-                                <div className="flex items-center justify-between h-full px-2 text-white text-xs">
-                                  <span className="truncate">
-                                    {task.progress}%
-                                  </span>
-                                  <div className="flex items-center gap-1">
-                                    <Clock className="w-3 h-3" />
-                                    <span>{task.actualHours}h</span>
-                                  </div>
-                                </div>
-                                
-                                {/* Прогресс */}
-                                <div
-                                  className="absolute top-0 left-0 h-full bg-white/30 rounded-l"
-                                  style={{ width: `${task.progress}%` }}
-                                />
+                              <div className="flex items-center gap-2">
+                                <Avatar className="w-5 h-5">
+                                  <AvatarFallback className="text-xs">
+                                    {task.avatar}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-xs text-muted-foreground">
+                                  {task.assignee}
+                                </span>
                               </div>
-
-                              {/* Зависимости */}
-                              {showDependencies && task.dependencies && task.dependencies.length > 0 && (
-                                <div className="absolute -top-1 -left-2">
-                                  <Link2 className="w-3 h-3 text-primary" />
+                              {groupingMode !== "project" && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {task.project}
                                 </div>
                               )}
-
-                              {/* Маркеры начала и конца */}
-                              <div
-                                className="absolute top-0 w-1 h-12 bg-primary border-l-2 border-primary"
-                                style={{ left: `${position.left}%` }}
-                                title={`Начало: ${task.startDate}`}
-                              />
-                              <div
-                                className="absolute top-0 w-1 h-12 bg-destructive border-r-2 border-destructive"
-                                style={{ left: `${position.left + position.width}%` }}
-                                title={`Завершение: ${task.dueDate}`}
-                              />
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
 
-                {/* Легенда */}
-                <div className="flex items-center gap-6 pt-4 border-t border-border text-xs mt-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-primary rounded"></div>
-                    <span>Дата начала</span>
+                          {/* Временная диаграмма */}
+                          <div className="flex-1 relative h-12 border border-border bg-accent/20">
+                            <div
+                              className={`absolute top-2 h-8 ${getStatusColor(task.status)} rounded opacity-80 group-hover:opacity-100 transition-all ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                              style={{
+                                left: `${position.left}%`,
+                                width: `${position.width}%`,
+                                minWidth: '20px'
+                              }}
+                            >
+                              <div className="flex items-center justify-between h-full px-2 text-white text-xs">
+                                <span className="truncate">
+                                  {task.progress}%
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  <span>{task.actualHours}h</span>
+                                </div>
+                              </div>
+                              
+                              {/* Прогресс */}
+                              <div
+                                className="absolute top-0 left-0 h-full bg-white/30 rounded-l"
+                                style={{ width: `${task.progress}%` }}
+                              />
+                            </div>
+
+                            {/* Зависимости */}
+                            {showDependencies && task.dependencies && task.dependencies.length > 0 && (
+                              <div className="absolute -top-1 -left-2">
+                                <Link2 className="w-3 h-3 text-primary" />
+                              </div>
+                            )}
+
+                            {/* Маркеры начала и конца */}
+                            <div
+                              className="absolute top-0 w-1 h-12 bg-primary border-l-2 border-primary"
+                              style={{ left: `${position.left}%` }}
+                              title={`Начало: ${task.startDate}`}
+                            />
+                            <div
+                              className="absolute top-0 w-1 h-12 bg-destructive border-r-2 border-destructive"
+                              style={{ left: `${position.left + position.width}%` }}
+                              title={`Завершение: ${task.dueDate}`}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-destructive rounded"></div>
-                    <span>Дата завершения</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-white/30 rounded"></div>
-                    <span>Прогресс</span>
-                  </div>
-                  {showDependencies && (
-                    <div className="flex items-center gap-2">
-                      <Link2 className="w-3 h-3 text-primary" />
-                      <span>Зависимости</span>
-                    </div>
-                  )}
-                </div>
+                ))}
               </div>
-            </ScrollArea>
-          </TabsContent>
-        </Tabs>
+
+              {/* Легенда */}
+              <div className="flex items-center gap-6 pt-4 border-t border-border text-xs mt-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-primary rounded"></div>
+                  <span>Дата начала</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-destructive rounded"></div>
+                  <span>Дата завершения</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-white/30 rounded"></div>
+                  <span>Прогресс</span>
+                </div>
+                {showDependencies && (
+                  <div className="flex items-center gap-2">
+                    <Link2 className="w-3 h-3 text-primary" />
+                    <span>Зависимости</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );
