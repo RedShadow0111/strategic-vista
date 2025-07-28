@@ -22,6 +22,7 @@ import {
   Download
 } from "lucide-react";
 import { toast } from "sonner";
+import { JobBoard } from "./JobBoard";
 
 interface ExternalTask {
   id: string;
@@ -182,10 +183,23 @@ export function ExternalTaskGateway() {
           <h2 className="text-2xl font-sf font-bold text-foreground">External Task Gateway</h2>
           <p className="text-muted-foreground">Автоматизированная передача задач внешним исполнителям</p>
         </div>
-        <Button variant="outline">
-          <Users className="w-4 h-4 mr-2" />
-          Биржа заданий
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <Users className="w-4 h-4 mr-2" />
+              Биржа заданий
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-7xl max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Биржа заданий</DialogTitle>
+              <DialogDescription>
+                Marketplace для поиска исполнителей и размещения проектов
+              </DialogDescription>
+            </DialogHeader>
+            <JobBoard />
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Статистика */}

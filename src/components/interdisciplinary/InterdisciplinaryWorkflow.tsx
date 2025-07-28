@@ -15,6 +15,8 @@ import {
   Activity,
   Zap
 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AutomationSettings } from "./AutomationSettings";
 
 interface DisciplinaryTask {
   id: string;
@@ -306,10 +308,23 @@ export function InterdisciplinaryWorkflow() {
           <h2 className="text-2xl font-sf font-bold text-foreground">Interdisciplinary Workflow Engine</h2>
           <p className="text-muted-foreground">Организация междисциплинарного обмена задачами</p>
         </div>
-        <Button variant="outline">
-          <Zap className="w-4 h-4 mr-2" />
-          Автоматизировать переходы
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <Zap className="w-4 h-4 mr-2" />
+              Автоматизировать переходы
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Автоматизация переходов</DialogTitle>
+              <DialogDescription>
+                Настройка автоматических переходов между этапами работ
+              </DialogDescription>
+            </DialogHeader>
+            <AutomationSettings />
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Статистика по потоку */}

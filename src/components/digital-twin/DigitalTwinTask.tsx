@@ -17,6 +17,8 @@ import {
   GitBranch,
   Monitor
 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { RealTimeMonitor } from "./RealTimeMonitor";
 
 interface TaskEvent {
   id: string;
@@ -246,10 +248,23 @@ export function DigitalTwinTask() {
           <h2 className="text-2xl font-sf font-bold text-foreground">Digital Twin of Task</h2>
           <p className="text-muted-foreground">Полная история и состояние задачи {selectedTaskId}</p>
         </div>
-        <Button variant="outline">
-          <Monitor className="w-4 h-4 mr-2" />
-          Реальное время
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <Monitor className="w-4 h-4 mr-2" />
+              Реальное время
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Мониторинг в реальном времени</DialogTitle>
+              <DialogDescription>
+                Live-отслеживание изменений задачи и связанных процессов
+              </DialogDescription>
+            </DialogHeader>
+            <RealTimeMonitor taskId={digitalTwin.taskId} />
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Краткая информация */}

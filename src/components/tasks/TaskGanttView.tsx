@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Calendar, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar, Clock, BarChart3 } from "lucide-react";
+import { InteractiveGanttView } from "./InteractiveGanttView";
 
 interface TaskGanttViewProps {
   tasks: any[];
@@ -60,10 +63,29 @@ export function TaskGanttView({ tasks }: TaskGanttViewProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="w-5 h-5" />
-          Gantt Chart View
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Gantt Chart View
+          </CardTitle>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Интерактивный режим
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-7xl max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Интерактивная диаграмма Ганта</DialogTitle>
+                <DialogDescription>
+                  Полнофункциональная диаграмма с зумом, фильтрацией и группировкой
+                </DialogDescription>
+              </DialogHeader>
+              <InteractiveGanttView tasks={tasks} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
