@@ -184,6 +184,26 @@ export default function Resources() {
     setHistoryDialogOpen(true);
   };
 
+  const handleHireNewResources = () => {
+    // Implementation for hiring new resources
+    alert("Opening resource hiring workflow...");
+  };
+
+  const handleSkillDevelopmentPlan = () => {
+    // Implementation for skill development planning
+    alert("Opening skill development planning...");
+  };
+
+  const handleCapacityPlanning = () => {
+    // Implementation for capacity planning
+    alert("Opening capacity planning tools...");
+  };
+
+  const handleResourceOptimization = () => {
+    // Implementation for resource optimization
+    alert("Opening resource optimization analysis...");
+  };
+
   const renderCompactView = () => {
     const getColumnValue = (member: any, columnId: string) => {
       switch (columnId) {
@@ -591,80 +611,6 @@ export default function Resources() {
         </TabsContent>
 
         <TabsContent value="planning" className="space-y-6 mt-6">
-          {/* Resource Actions Blocks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Plus className="w-5 h-5 text-primary" />
-                  Here new resources
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Add and onboard new team members to expand capacity
-                </p>
-                <Button size="sm" className="w-full">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Add Resource
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Award className="w-5 h-5 text-primary" />
-                  Skill development plan
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Create learning paths and skill enhancement programs
-                </p>
-                <Button size="sm" className="w-full" variant="outline">
-                  <Star className="w-4 h-4 mr-2" />
-                  Plan Skills
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Calendar className="w-5 h-5 text-primary" />
-                  Capacity planning
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Forecast and allocate resources across projects
-                </p>
-                <Button size="sm" className="w-full" variant="outline">
-                  <Clock className="w-4 h-4 mr-2" />
-                  Plan Capacity
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  Resource optimization
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Optimize allocation and maximize efficiency
-                </p>
-                <Button size="sm" className="w-full" variant="outline">
-                  <Target className="w-4 h-4 mr-2" />
-                  Optimize
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Original Resource Planning Content */}
           <Card>
@@ -714,19 +660,35 @@ export default function Resources() {
                 <div className="space-y-4">
                   <h4 className="font-sf font-medium text-foreground">Additional Actions</h4>
                   <div className="grid grid-cols-1 gap-3">
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={handleHireNewResources}
+                    >
                       <UserPlus className="w-4 h-4 mr-2" />
                       Hire new resources
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={handleSkillDevelopmentPlan}
+                    >
                       <Award className="w-4 h-4 mr-2" />
                       Skill development plan
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={handleCapacityPlanning}
+                    >
                       <Briefcase className="w-4 h-4 mr-2" />
                       Capacity planning
                     </Button>
-                    <Button variant="outline" className="w-full justify-start">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start" 
+                      onClick={handleResourceOptimization}
+                    >
                       <TrendingUp className="w-4 h-4 mr-2" />
                       Resource optimization
                     </Button>
