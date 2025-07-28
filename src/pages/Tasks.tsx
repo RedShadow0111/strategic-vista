@@ -29,11 +29,11 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { TaskEditDialog } from "@/components/tasks/TaskEditDialog";
 import { TaskGanttView } from "@/components/tasks/TaskGanttView";
 import { TaskCompactView } from "@/components/tasks/TaskCompactView";
-import { TaskKanbanView } from "@/components/tasks/TaskKanbanView";
+import { EnhancedTaskKanbanView } from "@/components/tasks/EnhancedTaskKanbanView";
 import { NewTaskDialog } from "@/components/tasks/NewTaskDialog";
 import { TaskEditFooter } from "@/components/tasks/TaskEditFooter";
 import { ExternalTaskGateway } from "@/components/external-tasks/ExternalTaskGateway";
-import { CompactWorkflowView } from "@/components/interdisciplinary/CompactWorkflowView";
+import { EnhancedWorkflowView } from "@/components/interdisciplinary/EnhancedWorkflowView";
 import { DigitalTwinTask } from "@/components/digital-twin/DigitalTwinTask";
 
 const mockTasks = [
@@ -146,7 +146,7 @@ export default function Tasks() {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [editInFooter, setEditInFooter] = useState(false);
-  const [viewMode, setViewMode] = useState<"task-list" | "kanban" | "gantt" | "external" | "workflow" | "digital-twin">("kanban");
+  const [viewMode, setViewMode] = useState<"task-list" | "kanban" | "gantt" | "external" | "workflow" | "digital-twin">("task-list");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortField, setSortField] = useState<string | null>(null);
@@ -294,7 +294,7 @@ export default function Tasks() {
         </TabsContent>
 
         <TabsContent value="kanban">
-          <TaskKanbanView tasks={sortedTasks} onEditTask={handleEditTask} />
+          <EnhancedTaskKanbanView tasks={sortedTasks} onEditTask={handleEditTask} />
         </TabsContent>
 
         <TabsContent value="gantt">
@@ -306,7 +306,7 @@ export default function Tasks() {
         </TabsContent>
 
         <TabsContent value="workflow">
-          <CompactWorkflowView />
+          <EnhancedWorkflowView />
         </TabsContent>
 
         <TabsContent value="digital-twin">

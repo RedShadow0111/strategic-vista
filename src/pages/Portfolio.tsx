@@ -129,7 +129,7 @@ export default function Portfolio() {
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <List className="w-4 h-4" />
-            Project Overview
+            Portfolio Overview
           </TabsTrigger>
           <TabsTrigger value="management" className="flex items-center gap-2">
             <FolderKanban className="w-4 h-4" />
