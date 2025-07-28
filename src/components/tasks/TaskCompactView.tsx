@@ -19,7 +19,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, Settings, Calendar, Clock, User } from "lucide-react";
+import { Edit, Settings, Calendar, Clock, User, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 interface TaskCompactViewProps {
   tasks: any[];
@@ -61,6 +61,9 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
     actions: true
   });
 
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
   const columnOptions = [
     { key: "title", label: "Title" },
     { key: "status", label: "Status" },
@@ -82,6 +85,43 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
       [key]: !prev[key]
     }));
   };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3" />;
+    return sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+  };
+
+  const sortedTasks = [...tasks].sort((a, b) => {
+    if (!sortField) return 0;
+    
+    let aValue = a[sortField];
+    let bValue = b[sortField];
+    
+    // Handle different data types
+    if (sortField === 'progress') {
+      aValue = Number(aValue);
+      bValue = Number(bValue);
+    } else if (sortField === 'dueDate' || sortField === 'startDate') {
+      aValue = new Date(aValue);
+      bValue = new Date(bValue);
+    } else if (typeof aValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+    
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <Card>
@@ -115,14 +155,102 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              {visibleColumns.title && <TableHead>Title</TableHead>}
-              {visibleColumns.status && <TableHead>Status</TableHead>}
-              {visibleColumns.priority && <TableHead>Priority</TableHead>}
-              {visibleColumns.assignee && <TableHead>Assignee</TableHead>}
-              {visibleColumns.project && <TableHead>Project</TableHead>}
-              {visibleColumns.progress && <TableHead>Progress</TableHead>}
-              {visibleColumns.dueDate && <TableHead>Due Date</TableHead>}
-              {visibleColumns.startDate && <TableHead>Start Date</TableHead>}
+              {visibleColumns.title && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('title')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Title {getSortIcon('title')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.status && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('status')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Status {getSortIcon('status')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.priority && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('priority')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Priority {getSortIcon('priority')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.assignee && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('assignee')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Assignee {getSortIcon('assignee')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.project && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('project')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Project {getSortIcon('project')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.progress && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('progress')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Progress {getSortIcon('progress')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.dueDate && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('dueDate')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Due Date {getSortIcon('dueDate')}
+                  </Button>
+                </TableHead>
+              )}
+              {visibleColumns.startDate && (
+                <TableHead>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleSort('startDate')}
+                    className="h-auto p-1 font-medium"
+                  >
+                    Start Date {getSortIcon('startDate')}
+                  </Button>
+                </TableHead>
+              )}
               {visibleColumns.estimatedHours && <TableHead>Est. Hours</TableHead>}
               {visibleColumns.actualHours && <TableHead>Actual Hours</TableHead>}
               {visibleColumns.tags && <TableHead>Tags</TableHead>}
@@ -130,7 +258,7 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tasks.map((task) => (
+            {sortedTasks.map((task) => (
               <TableRow key={task.id} className="hover:bg-accent/50">
                 {visibleColumns.title && (
                   <TableCell className="font-medium">

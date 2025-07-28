@@ -591,6 +591,82 @@ export default function Resources() {
         </TabsContent>
 
         <TabsContent value="planning" className="space-y-6 mt-6">
+          {/* Resource Actions Blocks */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Plus className="w-5 h-5 text-primary" />
+                  Here new resources
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add and onboard new team members to expand capacity
+                </p>
+                <Button size="sm" className="w-full">
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add Resource
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Award className="w-5 h-5 text-primary" />
+                  Skill development plan
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Create learning paths and skill enhancement programs
+                </p>
+                <Button size="sm" className="w-full" variant="outline">
+                  <Star className="w-4 h-4 mr-2" />
+                  Plan Skills
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Capacity planning
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Forecast and allocate resources across projects
+                </p>
+                <Button size="sm" className="w-full" variant="outline">
+                  <Clock className="w-4 h-4 mr-2" />
+                  Plan Capacity
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-apple-md transition-shadow cursor-pointer">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Resource optimization
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Optimize allocation and maximize efficiency
+                </p>
+                <Button size="sm" className="w-full" variant="outline">
+                  <Target className="w-4 h-4 mr-2" />
+                  Optimize
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Original Resource Planning Content */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -636,27 +712,9 @@ export default function Resources() {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="font-sf font-medium text-foreground">Resource Actions</h4>
-                  <div className="space-y-3">
-                    <Button variant="outline" className="w-full justify-start">
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Hire New Resources
-                    </Button>
-                    
-                    <Button variant="outline" className="w-full justify-start">
-                      <Star className="w-4 h-4 mr-2" />
-                      Skill Development Plan
-                    </Button>
-                    
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Capacity Planning
-                    </Button>
-                    
-                    <Button variant="outline" className="w-full justify-start">
-                      <Target className="w-4 h-4 mr-2" />
-                      Resource Optimization
-                    </Button>
+                  <h4 className="font-sf font-medium text-foreground">Additional Actions</h4>
+                  <div className="text-center text-muted-foreground">
+                    Additional planning tools coming soon...
                   </div>
                 </div>
               </div>

@@ -18,7 +18,12 @@ import {
   BarChart3,
   Edit,
   Settings,
-  Plus
+  Plus,
+  Download,
+  Printer,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { TaskEditDialog } from "@/components/tasks/TaskEditDialog";
@@ -139,6 +144,8 @@ export default function Tasks() {
   const [viewMode, setViewMode] = useState<"normal" | "compact" | "gantt" | "external" | "interdisciplinary" | "digital-twin">(tab === 'gantt' ? 'gantt' : 'normal');
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [sortField, setSortField] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const filteredTasks = mockTasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -150,6 +157,63 @@ export default function Tasks() {
   const handleEditTask = (task: any) => {
     setSelectedTask(task);
   };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3" />;
+    return sortDirection === 'asc' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+  };
+
+  const handleExport = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      "Title,Status,Priority,Assignee,Project,Progress,Due Date\n" +
+      filteredTasks.map(task => 
+        `"${task.title}","${task.status}","${task.priority}","${task.assignee}","${task.project}","${task.progress}%","${task.dueDate}"`
+      ).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "tasks_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    if (!sortField) return 0;
+    
+    let aValue = a[sortField];
+    let bValue = b[sortField];
+    
+    // Handle different data types
+    if (sortField === 'progress') {
+      aValue = Number(aValue);
+      bValue = Number(bValue);
+    } else if (sortField === 'dueDate' || sortField === 'startDate') {
+      aValue = new Date(aValue);
+      bValue = new Date(bValue);
+    } else if (typeof aValue === 'string') {
+      aValue = aValue.toLowerCase();
+      bValue = bValue.toLowerCase();
+    }
+    
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <div className="space-y-6">
@@ -207,13 +271,65 @@ export default function Tasks() {
           <Filter className="w-4 h-4 mr-2" />
           More Filters
         </Button>
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="w-4 h-4 mr-2" />
+          Export
+        </Button>
+        <Button variant="outline" size="sm" onClick={handlePrint}>
+          <Printer className="w-4 h-4 mr-2" />
+          Print
+        </Button>
       </div>
 
       {/* Task Views */}
       <Tabs value={viewMode} className="w-full">
         <TabsContent value="normal">
+          {/* Sorting Headers */}
+          <div className="flex items-center gap-4 mb-4 pb-2 border-b border-border">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleSort('title')}
+              className="font-medium"
+            >
+              Title {getSortIcon('title')}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleSort('status')}
+              className="font-medium"
+            >
+              Status {getSortIcon('status')}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleSort('priority')}
+              className="font-medium"
+            >
+              Priority {getSortIcon('priority')}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleSort('dueDate')}
+              className="font-medium"
+            >
+              Due Date {getSortIcon('dueDate')}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => handleSort('progress')}
+              className="font-medium"
+            >
+              Progress {getSortIcon('progress')}
+            </Button>
+          </div>
+          
           <div className="space-y-4">
-            {filteredTasks.map((task) => (
+            {sortedTasks.map((task) => (
               <Card key={task.id} className="hover:shadow-apple-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -306,7 +422,7 @@ export default function Tasks() {
         </TabsContent>
 
         <TabsContent value="compact">
-          <TaskCompactView tasks={filteredTasks} onEditTask={handleEditTask} />
+          <TaskCompactView tasks={sortedTasks} onEditTask={handleEditTask} />
         </TabsContent>
 
         <TabsContent value="gantt">
