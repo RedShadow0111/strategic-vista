@@ -187,12 +187,12 @@ export function ExternalTaskGateway() {
           <DialogTrigger asChild>
             <Button variant="outline">
               <Users className="w-4 h-4 mr-2" />
-              Биржа заданий
+              Job Board
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-7xl max-h-[90vh]">
             <DialogHeader>
-              <DialogTitle>Биржа заданий</DialogTitle>
+              <DialogTitle>Job Board</DialogTitle>
               <DialogDescription>
                 Marketplace для поиска исполнителей и размещения проектов
               </DialogDescription>

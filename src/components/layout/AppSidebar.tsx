@@ -75,7 +75,7 @@ const navigationItems = [
     description: "Custom reports & exports"
   },
   {
-    title: "Биржа заданий",
+    title: "Job Board",
     url: "/job-board",
     icon: Briefcase,
     description: "Внешние исполнители"

@@ -144,7 +144,7 @@ export function JobBoard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-sf font-bold text-foreground">Биржа заданий</h2>
+          <h2 className="text-2xl font-sf font-bold text-foreground">Job Board</h2>
           <p className="text-muted-foreground">Найдите проекты или предложите свои услуги</p>
         </div>
         <Button>

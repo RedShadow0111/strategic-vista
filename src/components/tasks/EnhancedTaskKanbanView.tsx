@@ -7,8 +7,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Edit, Calendar, Clock, User, Plus, MoreHorizontal, Trash2, Edit3 } from "lucide-react";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, useSensor, useSensors, PointerSensor } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, useSensor, useSensors, PointerSensor, DragOverEvent } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -127,7 +127,7 @@ function SortableTask({ task, onEditTask }: { task: Task; onEditTask: (task: Tas
   );
 }
 
-function KanbanColumn({ 
+function SortableColumn({ 
   status, 
   tasks, 
   onEditTask, 
@@ -140,6 +140,21 @@ function KanbanColumn({
   onEditColumnTitle: (oldTitle: string, newTitle: string) => void;
   onDeleteColumn: (status: string) => void;
 }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: status });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+  };
+
   const columnTasks = tasks.filter(task => task.status === status);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(status);
@@ -160,9 +175,9 @@ function KanbanColumn({
       setEditTitle(status);
     }
   };
-  
+
   return (
-    <div className="flex-1 min-w-[280px]">
+    <div ref={setNodeRef} style={style} {...attributes} className="flex-1 min-w-[280px]">
       <Card className="h-full">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center justify-between text-sm">
@@ -176,7 +191,7 @@ function KanbanColumn({
                 autoFocus
               />
             ) : (
-              <span>{status}</span>
+              <span className="cursor-grab" {...listeners}>{status}</span>
             )}
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="ml-2">
@@ -235,6 +250,29 @@ export function EnhancedTaskKanbanView({ tasks, onEditTask }: TaskKanbanViewProp
     setActiveId(event.active.id as string);
   }
 
+  function handleDragOver(event: DragOverEvent) {
+    const { active, over } = event;
+    
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    // Check if dragging a column
+    if (columns.includes(activeId as string)) {
+      const oldIndex = columns.indexOf(activeId as string);
+      const newIndex = columns.indexOf(overId as string);
+      
+      if (oldIndex !== newIndex) {
+        setColumns(arrayMove(columns, oldIndex, newIndex));
+      }
+      return;
+    }
+
+    // Task drag logic would go here
+    console.log("Task", activeId, "over", overId);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     
@@ -283,20 +321,23 @@ export function EnhancedTaskKanbanView({ tasks, onEditTask }: TaskKanbanViewProp
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragStart={handleDragStart} 
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 h-full overflow-x-auto pb-4">
-          {columns.map((status) => (
-            <KanbanColumn
-              key={status}
-              status={status}
-              tasks={tasks}
-              onEditTask={onEditTask}
-              onEditColumnTitle={handleEditColumnTitle}
-              onDeleteColumn={handleDeleteColumn}
-            />
-          ))}
-        </div>
+        <SortableContext items={columns} strategy={horizontalListSortingStrategy}>
+          <div className="flex gap-4 h-full overflow-x-auto pb-4">
+            {columns.map((status) => (
+              <SortableColumn
+                key={status}
+                status={status}
+                tasks={tasks}
+                onEditTask={onEditTask}
+                onEditColumnTitle={handleEditColumnTitle}
+                onDeleteColumn={handleDeleteColumn}
+              />
+            ))}
+          </div>
+        </SortableContext>
         
         <DragOverlay>
           {activeTask ? (
