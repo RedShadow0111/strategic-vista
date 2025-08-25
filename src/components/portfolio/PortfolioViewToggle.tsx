@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Grid3X3, List } from "lucide-react";
+import { Grid3X3, List, Move } from "lucide-react";
 
 interface PortfolioViewToggleProps {
   viewMode?: "list" | "grid";
@@ -10,6 +10,7 @@ export function PortfolioViewToggle({
   viewMode = "list", 
   onViewModeChange 
 }: PortfolioViewToggleProps) {
+  // Only show toggle for overview tab (list/grid modes)
   return (
     <div className="flex items-center border border-border rounded-lg p-1">
       <Button

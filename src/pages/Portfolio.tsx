@@ -16,13 +16,18 @@ import {
   Grid3X3,
   List,
   Eye,
-  FolderKanban
+  FolderKanban,
+  Move
 } from "lucide-react";
 import { PortfolioFilters } from "@/components/portfolio/PortfolioFilters";
 import { PortfolioViewToggle } from "@/components/portfolio/PortfolioViewToggle";
 import { PortfolioGridView } from "@/components/portfolio/PortfolioGridView";
 import { PortfolioManagement } from "@/components/portfolio/PortfolioManagement";
 import { EditProjectDialog } from "@/components/portfolio/EditProjectDialog";
+import { PortfolioMatrix } from "@/components/portfolio/PortfolioMatrix";
+import { WhatIfSimulator } from "@/components/portfolio/WhatIfSimulator";
+import { BulkActions } from "@/components/portfolio/BulkActions";
+import { EnhancedPortfolioFilters } from "@/components/portfolio/EnhancedPortfolioFilters";
 
 const portfolioProjects = [
   {
@@ -36,7 +41,10 @@ const portfolioProjects = [
     timeline: "Q2 2024 - Q4 2024",
     team: 12,
     risk: "Medium",
-    category: "Strategic"
+    category: "Strategic",
+    type: "Program",
+    strategicGoal: "Digital Transformation",
+    strategicValue: 8
   },
   {
     id: 2,
@@ -49,7 +57,10 @@ const portfolioProjects = [
     timeline: "Q3 2024 - Q1 2025",
     team: 8,
     risk: "Low",
-    category: "Product"
+    category: "Product",
+    type: "Independent",
+    strategicGoal: "Customer Experience",
+    strategicValue: 7
   },
   {
     id: 3,
@@ -62,7 +73,10 @@ const portfolioProjects = [
     timeline: "Q1 2024 - Q3 2024",
     team: 15,
     risk: "High",
-    category: "Infrastructure"
+    category: "Infrastructure",
+    type: "Program",
+    strategicGoal: "Operational Efficiency",
+    strategicValue: 6
   },
   {
     id: 4,
@@ -75,7 +89,42 @@ const portfolioProjects = [
     timeline: "Q4 2023 - Q2 2024",
     team: 6,
     risk: "Low",
-    category: "Product"
+    category: "Product",
+    type: "Independent",
+    strategicGoal: "Market Expansion",
+    strategicValue: 8
+  },
+  {
+    id: 5,
+    name: "AI Analytics Platform",
+    status: "Active",
+    priority: "High",
+    budget: "$1.5M",
+    spent: "$600K",
+    progress: 40,
+    timeline: "Q2 2024 - Q4 2024",
+    team: 10,
+    risk: "Medium",
+    category: "Strategic",
+    type: "Network",
+    strategicGoal: "Digital Transformation",
+    strategicValue: 9
+  },
+  {
+    id: 6,
+    name: "Security Enhancement",
+    status: "On Hold",
+    priority: "High",
+    budget: "$800K",
+    spent: "$200K",
+    progress: 25,
+    timeline: "Q1 2024 - Q3 2024",
+    team: 8,
+    risk: "High",
+    category: "Infrastructure",
+    type: "Independent",
+    strategicGoal: "Operational Efficiency",
+    strategicValue: 5
   }
 ];
 
@@ -109,12 +158,24 @@ const getRiskColor = (risk: string) => {
 
 export default function Portfolio() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list"); // Only for overview tab
   const [filteredProjects, setFilteredProjects] = useState(portfolioProjects);
 
   const handleViewDetails = (projectId: number) => {
     navigate(`/projects/${projectId}`);
   };
+
+  const handleBulkUpdate = (bulkUpdateData: any) => {
+    // Handle bulk updates here
+    console.log("Bulk update:", bulkUpdateData);
+    // You would typically update the projects state or make API calls here
+  };
+
+  // Convert risk strings to numbers for matrix
+  const projectsForMatrix = filteredProjects.map(project => ({
+    ...project,
+    risk: project.risk === "Low" ? 2 : project.risk === "Medium" ? 5 : 8
+  }));
 
   return (
     <div className="space-y-6">
@@ -126,10 +187,14 @@ export default function Portfolio() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <List className="w-4 h-4" />
             Portfolio Overview
+          </TabsTrigger>
+          <TabsTrigger value="matrix" className="flex items-center gap-2">
+            <Move className="w-4 h-4" />
+            Portfolio Matrix
           </TabsTrigger>
           <TabsTrigger value="management" className="flex items-center gap-2">
             <FolderKanban className="w-4 h-4" />
@@ -140,9 +205,14 @@ export default function Portfolio() {
         <TabsContent value="overview" className="space-y-6">
           {/* Header controls */}
           <div className="flex items-center justify-between">
-            <div></div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-medium">Portfolio Overview</h2>
+              <Badge variant="outline">{filteredProjects.length} projects</Badge>
+            </div>
             <div className="flex items-center gap-3">
-              <PortfolioFilters onFiltersChange={setFilteredProjects} projects={portfolioProjects} />
+              <EnhancedPortfolioFilters onFiltersChange={setFilteredProjects} projects={portfolioProjects} />
+              <WhatIfSimulator />
+              <BulkActions projects={filteredProjects} onBulkUpdate={handleBulkUpdate} />
               <PortfolioViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
               <Button size="sm">
                 <FolderOpen className="w-4 h-4 mr-2" />
@@ -295,6 +365,10 @@ export default function Portfolio() {
               onViewDetails={handleViewDetails}
             />
           )}
+        </TabsContent>
+
+        <TabsContent value="matrix" className="space-y-6">
+          <PortfolioMatrix projects={projectsForMatrix} />
         </TabsContent>
 
         <TabsContent value="management">
