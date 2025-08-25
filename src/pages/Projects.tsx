@@ -1,78 +1,72 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  FileStack, 
-  Calendar, 
-  Clock, 
-  Users, 
-  Target, 
-  Plus,
-  Search,
-  SortAsc,
-  Filter,
-  MoreHorizontal,
-  Eye,
-  FolderOpen
-} from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNavigate } from "react-router-dom";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Search, 
+  Plus,
+  Folder,
+  Calendar,
+  Users,
+  DollarSign,
+  AlertTriangle,
+  FileText,
+  BarChart3
+} from "lucide-react";
+
+// Components for each tab
+import { ProjectOverview } from "@/components/projects/ProjectOverview";
+import { ProjectSchedule } from "@/components/projects/ProjectSchedule";
+import { ProjectTeam } from "@/components/projects/ProjectTeam";
+import { ProjectFinances } from "@/components/projects/ProjectFinances";
+import { ProjectRisks } from "@/components/projects/ProjectRisks";
+import { ProjectDocuments } from "@/components/projects/ProjectDocuments";
 
 const projects = [
   {
     id: 1,
     name: "Digital Transformation Initiative",
-    description: "Modernizing core business processes and implementing new digital workflows",
+    description: "Modernizing core business processes",
     status: "In Progress",
     priority: "High",
     progress: 72,
-    startDate: "2024-02-15",
-    endDate: "2024-12-31",
-    team: [
-      { name: "Sarah Chen", role: "PM", avatar: "SC" },
-      { name: "Mike Johnson", role: "Tech Lead", avatar: "MJ" },
-      { name: "Emma Davis", role: "Designer", avatar: "ED" }
-    ],
-    tasks: { total: 45, completed: 32, inProgress: 8, pending: 5 },
-    budget: "$2.5M",
-    category: "Strategic"
+    sponsor: "Sarah Johnson",
+    category: "Strategic",
+    budget: 2500000,
+    spent: 1800000,
+    teamSize: 15,
+    riskLevel: "Medium"
   },
   {
     id: 2,
-    name: "Customer Portal Redesign",
-    description: "Complete redesign of customer-facing portal with improved UX and new features",
+    name: "Customer Portal Redesign", 
+    description: "Complete UX overhaul and new features",
     status: "Planning",
     priority: "Medium",
     progress: 15,
-    startDate: "2024-07-01",
-    endDate: "2025-03-31",
-    team: [
-      { name: "Alex Rodriguez", role: "PM", avatar: "AR" },
-      { name: "Lisa Wang", role: "UX Lead", avatar: "LW" }
-    ],
-    tasks: { total: 28, completed: 4, inProgress: 3, pending: 21 },
-    budget: "$850K",
-    category: "Product"
+    sponsor: "Mike Chen",
+    category: "Product",
+    budget: 850000,
+    spent: 127500,
+    teamSize: 8,
+    riskLevel: "Low"
   },
   {
     id: 3,
     name: "Infrastructure Modernization",
-    description: "Upgrading server infrastructure and migrating to cloud-native architecture",
-    status: "In Progress",
+    description: "Cloud migration and architecture upgrade",
+    status: "In Progress", 
     priority: "High",
     progress: 85,
-    startDate: "2024-01-10",
-    endDate: "2024-09-30",
-    team: [
-      { name: "David Kim", role: "PM", avatar: "DK" },
-      { name: "Rachel Green", role: "DevOps", avatar: "RG" },
-      { name: "Tom Wilson", role: "Architect", avatar: "TW" }
-    ],
-    tasks: { total: 52, completed: 44, inProgress: 6, pending: 2 },
-    budget: "$1.2M",
-    category: "Infrastructure"
+    sponsor: "Emily Rodriguez",
+    category: "Infrastructure",
+    budget: 1200000,
+    spent: 1020000,
+    teamSize: 12,
+    riskLevel: "High"
   }
 ];
 
@@ -96,269 +90,169 @@ const getPriorityColor = (priority: string) => {
 };
 
 export default function Projects() {
-  const navigate = useNavigate();
+  const [selectedProject, setSelectedProject] = useState(projects[0]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("overview");
 
-  const handleOpenProject = (projectId: number) => {
-    navigate(`/projects/${projectId}`);
-  };
-
-  const handleViewTasks = (projectId: number) => {
-    navigate(`/projects/${projectId}?tab=tasks`);
-  };
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    project.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-sf font-bold text-foreground">Project Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Track progress, manage tasks, and coordinate team activities
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <Search className="w-4 h-4 mr-2" />
-            Search
-          </Button>
-          <Button variant="outline" size="sm">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
-          <Button size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            New Project
-          </Button>
-        </div>
-      </div>
-
-      {/* Project Tabs */}
-      <Tabs defaultValue="active" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 max-w-md">
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="planning">Planning</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
-          <TabsTrigger value="all">All</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="active" className="space-y-6 mt-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Active Projects</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">18</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  +3 this quarter
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">342</div>
-                <div className="text-xs text-success mt-1">
-                  68% completed
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Team Members</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">56</div>
-                <div className="text-xs text-primary mt-1">
-                  Across all projects
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">On Schedule</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">85%</div>
-                <div className="text-xs text-success mt-1">
-                  15/18 projects
-                </div>
-              </CardContent>
-            </Card>
+    <div className="h-screen flex bg-background">
+      {/* Left Sidebar - Project List */}
+      <div className="w-80 border-r border-border bg-muted/20">
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-sf font-bold text-foreground">Проекты</h2>
+            <Button size="sm">
+              <Plus className="w-4 h-4" />
+            </Button>
           </div>
+          
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Поиск проектов..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
 
-          {/* Project List */}
-          <div className="space-y-4">
-            {projects.map((project) => (
-              <Card key={project.id} className="hover:shadow-apple-md transition-shadow cursor-pointer group">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1" onClick={() => handleOpenProject(project.id)}>
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-sf font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                          {project.name}
-                        </h3>
-                        <Badge variant="secondary" className={getStatusColor(project.status)}>
-                          {project.status}
-                        </Badge>
-                        <Badge variant="outline" className={getPriorityColor(project.priority)}>
-                          {project.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground text-sm mb-3">
-                        {project.description}
-                      </p>
+        <ScrollArea className="flex-1">
+          <div className="p-2">
+            {filteredProjects.map((project) => (
+              <Card 
+                key={project.id}
+                className={`mb-2 cursor-pointer transition-all hover:shadow-md ${
+                  selectedProject.id === project.id 
+                    ? 'ring-2 ring-primary bg-primary/5' 
+                    : 'hover:bg-muted/50'
+                }`}
+                onClick={() => setSelectedProject(project)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Folder className="w-4 h-4 text-primary" />
+                      <h3 className="font-medium text-sm leading-tight">{project.name}</h3>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                    {project.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="secondary" className={`${getStatusColor(project.status)} text-xs`}>
+                      {project.status}
+                    </Badge>
+                    <Badge variant="outline" className={`${getPriorityColor(project.priority)} text-xs`}>
+                      {project.priority}
+                    </Badge>
                   </div>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Progress & Timeline */}
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-2">
-                          <span className="text-muted-foreground">Progress</span>
-                          <span className="font-medium">{project.progress}%</span>
-                        </div>
-                        <Progress value={project.progress} className="h-2" />
-                      </div>
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {new Date(project.startDate).toLocaleDateString()}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Target className="w-4 h-4" />
-                          {new Date(project.endDate).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Team */}
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-2">Team</div>
-                      <div className="flex items-center gap-2">
-                        {project.team.map((member, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <Avatar className="w-6 h-6">
-                              <AvatarFallback className="text-xs">
-                                {member.avatar}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-xs text-muted-foreground">
-                              {member.role}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Tasks & Actions */}
-                    <div className="space-y-3">
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-2">Tasks</div>
-                        <div className="grid grid-cols-4 gap-2 text-xs">
-                          <div className="text-center">
-                            <div className="font-medium text-foreground">{project.tasks.completed}</div>
-                            <div className="text-success">Done</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="font-medium text-foreground">{project.tasks.inProgress}</div>
-                            <div className="text-warning">Active</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="font-medium text-foreground">{project.tasks.pending}</div>
-                            <div className="text-muted-foreground">Pending</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="font-medium text-foreground">{project.tasks.total}</div>
-                            <div className="text-muted-foreground">Total</div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewTasks(project.id);
-                          }}
-                        >
-                          <FileStack className="w-4 h-4 mr-1" />
-                          Tasks
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenProject(project.id);
-                          }}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          Details
-                        </Button>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{project.progress}% завершено</span>
+                    <span>{project.teamSize} участников</span>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
-        </TabsContent>
+        </ScrollArea>
+      </div>
 
-        <TabsContent value="planning" className="mt-6">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <FileStack className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-sf font-semibold text-foreground mb-2">Planning Projects</h3>
-              <p className="text-muted-foreground mb-4">
-                Projects in planning phase will appear here
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Project Header */}
+        <div className="p-6 border-b border-border bg-background">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-sf font-bold text-foreground mb-1">
+                {selectedProject.name}
+              </h1>
+              <p className="text-muted-foreground">
+                {selectedProject.description}
               </p>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Planning Project
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                {selectedProject.teamSize}
+              </div>
+              <div className="flex items-center gap-1">
+                <BarChart3 className="w-4 h-4" />
+                {selectedProject.progress}%
+              </div>
+              <Badge variant="secondary" className={getStatusColor(selectedProject.status)}>
+                {selectedProject.status}
+              </Badge>
+            </div>
+          </div>
+        </div>
 
-        <TabsContent value="completed" className="mt-6">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Target className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-sf font-semibold text-foreground mb-2">Completed Projects</h3>
-              <p className="text-muted-foreground mb-4">
-                Successfully completed projects will be shown here
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Project Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+          <div className="px-6 pt-4">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="schedule" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Schedule
+              </TabsTrigger>
+              <TabsTrigger value="team" className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Team
+              </TabsTrigger>
+              <TabsTrigger value="finances" className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4" />
+                Finances
+              </TabsTrigger>
+              <TabsTrigger value="risks" className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                Risks
+              </TabsTrigger>
+              <TabsTrigger value="documents" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Documents
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <TabsContent value="all" className="mt-6">
-          <Card>
-            <CardContent className="p-12 text-center">
-              <FileStack className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-sf font-semibold text-foreground mb-2">All Projects</h3>
-              <p className="text-muted-foreground mb-4">
-                Complete project overview across all statuses
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <div className="flex-1 p-6">
+            <TabsContent value="overview" className="h-full mt-0 animate-fade-in">
+              <ProjectOverview project={selectedProject} />
+            </TabsContent>
+            
+            <TabsContent value="schedule" className="h-full mt-0 animate-fade-in">
+              <ProjectSchedule project={selectedProject} />
+            </TabsContent>
+            
+            <TabsContent value="team" className="h-full mt-0 animate-fade-in">
+              <ProjectTeam project={selectedProject} />
+            </TabsContent>
+            
+            <TabsContent value="finances" className="h-full mt-0 animate-fade-in">
+              <ProjectFinances project={selectedProject} />
+            </TabsContent>
+            
+            <TabsContent value="risks" className="h-full mt-0 animate-fade-in">
+              <ProjectRisks project={selectedProject} />
+            </TabsContent>
+            
+            <TabsContent value="documents" className="h-full mt-0 animate-fade-in">
+              <ProjectDocuments project={selectedProject} />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }
