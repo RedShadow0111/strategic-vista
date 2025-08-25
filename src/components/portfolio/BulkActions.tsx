@@ -42,10 +42,10 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
   const [bulkUpdates, setBulkUpdates] = useState({
-    status: "",
-    priority: "",
+    status: "no_change",
+    priority: "no_change",
     budget: "",
-    category: ""
+    category: "no_change"
   });
 
   const handleProjectToggle = (projectId: number) => {
@@ -68,7 +68,7 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
     if (selectedProjects.length === 0) return;
 
     const filteredUpdates = Object.fromEntries(
-      Object.entries(bulkUpdates).filter(([_, value]) => value !== "")
+      Object.entries(bulkUpdates).filter(([_, value]) => value !== "" && value !== "no_change")
     );
 
     onBulkUpdate({
@@ -78,7 +78,7 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
 
     // Reset form
     setSelectedProjects([]);
-    setBulkUpdates({ status: "", priority: "", budget: "", category: "" });
+    setBulkUpdates({ status: "no_change", priority: "no_change", budget: "", category: "no_change" });
     setIsOpen(false);
   };
 
@@ -102,7 +102,7 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
   };
 
   const getUpdatePreview = () => {
-    const updates = Object.entries(bulkUpdates).filter(([_, value]) => value !== "");
+    const updates = Object.entries(bulkUpdates).filter(([_, value]) => value !== "" && value !== "no_change");
     return updates.length > 0 ? updates.map(([key, value]) => `${key}: ${value}`).join(", ") : "No changes";
   };
 
@@ -218,7 +218,7 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
                       <SelectValue placeholder="Select new status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Change</SelectItem>
+                      <SelectItem value="no_change">No Change</SelectItem>
                       <SelectItem value="Planning">Planning</SelectItem>
                       <SelectItem value="In Progress">In Progress</SelectItem>
                       <SelectItem value="On Hold">On Hold</SelectItem>
@@ -235,7 +235,7 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
                       <SelectValue placeholder="Select new priority" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Change</SelectItem>
+                      <SelectItem value="no_change">No Change</SelectItem>
                       <SelectItem value="Low">Low</SelectItem>
                       <SelectItem value="Medium">Medium</SelectItem>
                       <SelectItem value="High">High</SelectItem>
@@ -251,7 +251,7 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
                       <SelectValue placeholder="Select new category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No Change</SelectItem>
+                      <SelectItem value="no_change">No Change</SelectItem>
                       <SelectItem value="Strategic">Strategic</SelectItem>
                       <SelectItem value="Product">Product</SelectItem>
                       <SelectItem value="Infrastructure">Infrastructure</SelectItem>
