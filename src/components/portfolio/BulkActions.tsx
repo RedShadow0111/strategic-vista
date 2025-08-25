@@ -39,11 +39,12 @@ interface BulkUpdateData {
 }
 
 export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
+  console.log("BulkActions component rendering with:", { projects: projects.length });
   const [isOpen, setIsOpen] = useState(false);
   const [selectedProjects, setSelectedProjects] = useState<number[]>([]);
   const [bulkUpdates, setBulkUpdates] = useState({
     status: "no_change",
-    priority: "no_change",
+    priority: "no_change", 
     budget: "",
     category: "no_change"
   });
@@ -210,22 +211,28 @@ export function BulkActions({ projects, onBulkUpdate }: BulkActionsProps) {
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Status Update */}
-                <div>
-                  <Label>Status</Label>
-                  <Select value={bulkUpdates.status} onValueChange={(value) => setBulkUpdates(prev => ({ ...prev, status: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select new status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="no_change">No Change</SelectItem>
-                      <SelectItem value="Planning">Planning</SelectItem>
-                      <SelectItem value="In Progress">In Progress</SelectItem>
-                      <SelectItem value="On Hold">On Hold</SelectItem>
-                      <SelectItem value="Completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                 {/* Status Update */}
+                 <div>
+                   <Label>Status</Label>
+                   <Select 
+                     value={bulkUpdates.status} 
+                     onValueChange={(value) => {
+                       console.log("Status select changed to:", value);
+                       setBulkUpdates(prev => ({ ...prev, status: value }));
+                     }}
+                   >
+                     <SelectTrigger>
+                       <SelectValue placeholder="Select new status" />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="no_change">No Change</SelectItem>
+                       <SelectItem value="Planning">Planning</SelectItem>
+                       <SelectItem value="In Progress">In Progress</SelectItem>
+                       <SelectItem value="On Hold">On Hold</SelectItem>
+                       <SelectItem value="Completed">Completed</SelectItem>
+                     </SelectContent>
+                   </Select>
+                 </div>
 
                 {/* Priority Update */}
                 <div>
