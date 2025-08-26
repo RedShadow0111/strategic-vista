@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CreateJobDialogProps {
   open: boolean;
@@ -17,6 +18,7 @@ interface CreateJobDialogProps {
 }
 
 export function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobDialogProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -52,11 +54,27 @@ export function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobD
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user) {
+      toast.error("Необходимо войти в систему для создания задания");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Для демо используем временный client_id
-      const tempClientId = "temp-client-id";
+      // Получаем профиль пользователя
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        toast.error("Ошибка профиля пользователя");
+        setIsSubmitting(false);
+        return;
+      }
       
       const jobData = {
         title: formData.title,
@@ -70,7 +88,7 @@ export function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobD
         deadline: formData.deadline || null,
         duration: formData.duration || null,
         skills_required: formData.skills.length > 0 ? formData.skills : null,
-        client_id: tempClientId,
+        client_id: profile.id,
         status: 'open'
       };
 
@@ -80,7 +98,7 @@ export function CreateJobDialog({ open, onOpenChange, onJobCreated }: CreateJobD
 
       if (error) {
         console.error('Error creating job:', error);
-        toast.error("Ошибка при создании задания. Требуется аутентификация.");
+        toast.error("Ошибка при создании задания");
       } else {
         toast.success("Задание успешно создано!");
         onJobCreated();

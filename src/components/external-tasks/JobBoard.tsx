@@ -20,13 +20,16 @@ import {
   Send,
   Filter,
   History,
-  Eye
+  Eye,
+  User
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateJobDialog } from "./CreateJobDialog";
 import { JobDetailsDialog } from "./JobDetailsDialog";
 import { JobHistoryView } from "./JobHistoryView";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface JobPosting {
   id: string;
@@ -59,6 +62,8 @@ interface ContractorBid {
 
 
 export function JobBoard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("browse");
@@ -139,14 +144,23 @@ export function JobBoard() {
           <p className="text-muted-foreground">Найдите проекты или предложите свои услуги</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setActiveTab("history")}>
-            <History className="w-4 h-4 mr-2" />
-            История
-          </Button>
-          <Button onClick={() => setCreateJobOpen(true)}>
-            <Send className="w-4 h-4 mr-2" />
-            Разместить задание
-          </Button>
+          {!user ? (
+            <Button variant="outline" onClick={() => navigate('/auth')}>
+              <User className="w-4 h-4 mr-2" />
+              Войти для размещения
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => setActiveTab("history")}>
+                <History className="w-4 h-4 mr-2" />
+                История
+              </Button>
+              <Button onClick={() => setCreateJobOpen(true)}>
+                <Send className="w-4 h-4 mr-2" />
+                Разместить задание
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
