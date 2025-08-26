@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,106 +18,81 @@ import {
   Star,
   ThumbsUp,
   Send,
-  Filter
+  Filter,
+  History,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { CreateJobDialog } from "./CreateJobDialog";
+import { JobDetailsDialog } from "./JobDetailsDialog";
+import { JobHistoryView } from "./JobHistoryView";
 
 interface JobPosting {
   id: string;
   title: string;
   description: string;
-  company: string;
-  location: string;
-  budget: {
-    min: number;
-    max: number;
-    currency: string;
-  };
-  deadline: string;
-  requiredSkills: string[];
-  experience: "Junior" | "Mid" | "Senior" | "Expert";
-  type: "Fixed Price" | "Hourly" | "Long-term";
-  category: "Architecture" | "Construction" | "MEP" | "Geology" | "Design";
-  bids: number;
-  rating: number;
-  verified: boolean;
-  urgent: boolean;
-  postedAt: string;
+  category: string;
+  job_type: string;
+  experience_level: string;
+  budget_min?: number;
+  budget_max?: number;
+  hourly_rate?: number;
+  deadline?: string;
+  duration?: string;
+  skills_required?: string[];
+  status: string;
+  created_at: string;
+  client_id: string;
 }
 
 interface ContractorBid {
   id: string;
-  jobId: string;
-  contractorName: string;
-  price: number;
+  job_id: string;
+  contractor_id: string;
+  bid_amount: number;
   timeline: string;
   proposal: string;
-  rating: number;
-  completedJobs: number;
-  portfolio: string[];
-  submittedAt: string;
+  status: string;
+  created_at: string;
 }
 
-const mockJobs: JobPosting[] = [
-  {
-    id: "JOB-001",
-    title: "Разработка КМД для жилого комплекса",
-    description: "Требуется разработать конструктивные решения для многоэтажного жилого дома. Предоставляются архитектурные планы и геологические данные.",
-    company: "СтройИнвест ООО",
-    location: "Москва",
-    budget: { min: 120000, max: 180000, currency: "RUB" },
-    deadline: "2025-03-15",
-    requiredSkills: ["AutoCAD", "КМД", "СНиП", "Железобетон"],
-    experience: "Senior",
-    type: "Fixed Price",
-    category: "Construction",
-    bids: 12,
-    rating: 4.8,
-    verified: true,
-    urgent: true,
-    postedAt: "2025-01-27"
-  },
-  {
-    id: "JOB-002", 
-    title: "Проектирование системы вентиляции",
-    description: "Проектирование системы ОВК для офисного центра площадью 5000 м². Энергоэффективные решения приветствуются.",
-    company: "ТехноБилд",
-    location: "Санкт-Петербург",
-    budget: { min: 80000, max: 120000, currency: "RUB" },
-    deadline: "2025-04-01",
-    requiredSkills: ["ОВК", "Вентиляция", "AutoCAD", "Revit"],
-    experience: "Mid",
-    type: "Fixed Price",
-    category: "MEP",
-    bids: 8,
-    rating: 4.6,
-    verified: true,
-    urgent: false,
-    postedAt: "2025-01-26"
-  }
-];
-
-const mockBids: ContractorBid[] = [
-  {
-    id: "BID-001",
-    jobId: "JOB-001",
-    contractorName: "ПроектСтрой",
-    price: 150000,
-    timeline: "45 дней",
-    proposal: "Опыт работы с подобными проектами более 10 лет. Гарантируем качество и соблюдение сроков.",
-    rating: 4.9,
-    completedJobs: 127,
-    portfolio: ["portfolio1.pdf", "portfolio2.pdf"],
-    submittedAt: "2025-01-27T10:30:00Z"
-  }
-];
 
 export function JobBoard() {
-  const [jobs] = useState<JobPosting[]>(mockJobs);
-  const [selectedJob, setSelectedJob] = useState<JobPosting | null>(null);
+  const [jobs, setJobs] = useState<JobPosting[]>([]);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("browse");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [loading, setLoading] = useState(true);
+  const [createJobOpen, setCreateJobOpen] = useState(false);
+  const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('job_postings')
+        .select('*')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching jobs:', error);
+        toast.error("Ошибка при загрузке заданий");
+      } else {
+        setJobs(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Произошла ошибка при загрузке заданий");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getCategoryColor = (category: string) => {
     const colors = {
@@ -132,9 +107,25 @@ export function JobBoard() {
 
   const filteredJobs = jobs.filter(job => {
     if (filterCategory !== "all" && job.category !== filterCategory) return false;
-    if (filterType !== "all" && job.type !== filterType) return false;
+    if (filterType !== "all" && job.job_type !== filterType) return false;
     return true;
   });
+
+  const formatBudget = (job: JobPosting) => {
+    if (job.hourly_rate) return `₽${job.hourly_rate.toLocaleString()}/час`;
+    if (job.budget_min && job.budget_max) return `₽${job.budget_min.toLocaleString()} - ₽${job.budget_max.toLocaleString()}`;
+    if (job.budget_min) return `от ₽${job.budget_min.toLocaleString()}`;
+    return "Договорная";
+  };
+
+  const handleJobCreated = () => {
+    fetchJobs();
+  };
+
+  const handleJobDetails = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setJobDetailsOpen(true);
+  };
 
   const handleBidSubmit = () => {
     toast.success("Заявка отправлена! Ожидайте ответа от заказчика.");
@@ -147,10 +138,16 @@ export function JobBoard() {
           <h2 className="text-2xl font-sf font-bold text-foreground">Job Board</h2>
           <p className="text-muted-foreground">Найдите проекты или предложите свои услуги</p>
         </div>
-        <Button>
-          <Send className="w-4 h-4 mr-2" />
-          Разместить задание
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setActiveTab("history")}>
+            <History className="w-4 h-4 mr-2" />
+            История
+          </Button>
+          <Button onClick={() => setCreateJobOpen(true)}>
+            <Send className="w-4 h-4 mr-2" />
+            Разместить задание
+          </Button>
+        </div>
       </div>
 
       {/* Статистика */}
@@ -205,10 +202,11 @@ export function JobBoard() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="browse">Просмотр заданий</TabsTrigger>
           <TabsTrigger value="my-bids">Мои заявки</TabsTrigger>
           <TabsTrigger value="my-jobs">Мои задания</TabsTrigger>
+          <TabsTrigger value="history">История</TabsTrigger>
         </TabsList>
 
         <TabsContent value="browse" className="space-y-4">
@@ -249,133 +247,162 @@ export function JobBoard() {
           </Card>
 
           {/* Список заданий */}
-          <div className="space-y-4">
-            {filteredJobs.map((job) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-lg">{job.title}</CardTitle>
-                        {job.urgent && <Badge variant="destructive">Срочно</Badge>}
-                        {job.verified && <Badge variant="outline" className="text-success">✓ Верифицирован</Badge>}
-                      </div>
-                      <CardDescription>{job.description}</CardDescription>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredJobs.length === 0 ? (
+                <Card>
+                  <CardContent className="text-center py-8">
+                    <div className="text-muted-foreground">
+                      Задания не найдены. Попробуйте изменить фильтры или создать новое задание.
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-success">
-                        ₽{job.budget.min.toLocaleString()} - ₽{job.budget.max.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-muted-foreground">{job.type}</div>
-                    </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      <span>{job.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>{new Date(job.deadline).toLocaleDateString('ru-RU')}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span>{job.bids} заявок</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-warning" />
-                      <span>{job.rating} рейтинг</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge className={getCategoryColor(job.category)}>
-                        {job.category}
-                      </Badge>
-                      <Badge variant="outline">
-                        {job.experience}
-                      </Badge>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {job.requiredSkills.map((skill, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="text-sm text-muted-foreground">
-                      Опубликовано: {new Date(job.postedAt).toLocaleDateString('ru-RU')}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm">
-                        Подробнее
-                      </Button>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button size="sm" onClick={() => setSelectedJob(job)}>
-                            Подать заявку
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Подача заявки</DialogTitle>
-                            <DialogDescription>
-                              Заявка на проект: {job.title}
-                            </DialogDescription>
-                          </DialogHeader>
-                          
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="bid-price">Ваша цена (₽)</Label>
-                                <Input
-                                  id="bid-price"
-                                  type="number"
-                                  placeholder="150000"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="bid-timeline">Срок выполнения</Label>
-                                <Input
-                                  id="bid-timeline"
-                                  placeholder="30 дней"
-                                />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="bid-proposal">Предложение</Label>
-                              <Textarea
-                                id="bid-proposal"
-                                placeholder="Опишите ваш подход к выполнению проекта..."
-                                rows={4}
-                              />
-                            </div>
-
-                            <div className="flex justify-end gap-2">
-                              <Button variant="outline">
-                                Отмена
-                              </Button>
-                              <Button onClick={handleBidSubmit}>
-                                Отправить заявку
-                              </Button>
-                            </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredJobs.map((job) => (
+                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-lg">{job.title}</CardTitle>
+                            {job.status === 'urgent' && <Badge variant="destructive">Срочно</Badge>}
+                            <Badge variant="outline" className="text-success">
+                              {job.status === 'open' ? 'Открыто' : job.status}
+                            </Badge>
                           </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                          <CardDescription>{job.description}</CardDescription>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-success">
+                            {formatBudget(job)}
+                          </div>
+                          <div className="text-sm text-muted-foreground">{job.job_type}</div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        {job.deadline && (
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(job.deadline).toLocaleDateString('ru-RU')}</span>
+                          </div>
+                        )}
+                        {job.duration && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4" />
+                            <span>{job.duration}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>0 заявок</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date(job.created_at).toLocaleDateString('ru-RU')}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge className={getCategoryColor(job.category)}>
+                            {job.category}
+                          </Badge>
+                          <Badge variant="outline">
+                            {job.experience_level}
+                          </Badge>
+                        </div>
+                        {job.skills_required && job.skills_required.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {job.skills_required.map((skill, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {skill}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="text-sm text-muted-foreground">
+                          Опубликовано: {new Date(job.created_at).toLocaleDateString('ru-RU')}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleJobDetails(job.id)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Подробнее
+                          </Button>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button size="sm">
+                                Подать заявку
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Подача заявки</DialogTitle>
+                                <DialogDescription>
+                                  Заявка на проект: {job.title}
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bid-price">Ваша цена (₽)</Label>
+                                    <Input
+                                      id="bid-price"
+                                      type="number"
+                                      placeholder="150000"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bid-timeline">Срок выполнения</Label>
+                                    <Input
+                                      id="bid-timeline"
+                                      placeholder="30 дней"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="bid-proposal">Предложение</Label>
+                                  <Textarea
+                                    id="bid-proposal"
+                                    placeholder="Опишите ваш подход к выполнению проекта..."
+                                    rows={4}
+                                  />
+                                </div>
+
+                                <div className="flex justify-end gap-2">
+                                  <Button variant="outline">
+                                    Отмена
+                                  </Button>
+                                  <Button onClick={handleBidSubmit}>
+                                    Отправить заявку
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="my-bids" className="space-y-4">
@@ -400,12 +427,28 @@ export function JobBoard() {
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
-                Задания не найдены
+                Задания не найдены. Для работы с заданиями необходима аутентификация.
               </div>
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="history" className="space-y-4">
+          <JobHistoryView />
+        </TabsContent>
       </Tabs>
+
+      <CreateJobDialog 
+        open={createJobOpen}
+        onOpenChange={setCreateJobOpen}
+        onJobCreated={handleJobCreated}
+      />
+
+      <JobDetailsDialog
+        jobId={selectedJobId}
+        open={jobDetailsOpen}
+        onOpenChange={setJobDetailsOpen}
+      />
     </div>
   );
 }
