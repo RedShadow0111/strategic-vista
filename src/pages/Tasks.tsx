@@ -35,6 +35,8 @@ import { TaskEditFooter } from "@/components/tasks/TaskEditFooter";
 import { ExternalTaskGateway } from "@/components/external-tasks/ExternalTaskGateway";
 import { EnhancedWorkflowView } from "@/components/interdisciplinary/EnhancedWorkflowView";
 import { DigitalTwinTask } from "@/components/digital-twin/DigitalTwinTask";
+import { BulkActions } from "@/components/tasks/BulkActions";
+import { InteractiveGanttView } from "@/components/tasks/InteractiveGanttView";
 
 const mockTasks = [
   {
@@ -146,11 +148,13 @@ export default function Tasks() {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [editInFooter, setEditInFooter] = useState(false);
-  const [viewMode, setViewMode] = useState<"task-list" | "kanban" | "gantt" | "external" | "workflow" | "digital-twin">("task-list");
+  const [viewMode, setViewMode] = useState<"task-list" | "kanban" | "gantt" | "external" | "workflow">("task-list");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   const filteredTasks = mockTasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,6 +166,37 @@ export default function Tasks() {
   const handleEditTask = (task: any) => {
     setSelectedTask(task);
     setEditInFooter(true);
+  };
+
+  const handleTaskSelect = (taskId: string, selected: boolean) => {
+    setSelectedTasks(prev => {
+      const newSelection = selected 
+        ? [...prev, taskId]
+        : prev.filter(id => id !== taskId);
+      
+      setShowBulkActions(newSelection.length > 0);
+      return newSelection;
+    });
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    const newSelection = selected ? filteredTasks.map(task => task.id) : [];
+    setSelectedTasks(newSelection);
+    setShowBulkActions(newSelection.length > 0);
+  };
+
+  const handleApplyBulkChanges = (changes: any) => {
+    console.log("Applying bulk changes:", changes, "to tasks:", selectedTasks);
+    // Here you would apply the changes to the selected tasks
+    setSelectedTasks([]);
+    setShowBulkActions(false);
+  };
+
+  const handleSendToExternal = (tasks: any[], packageData: any) => {
+    console.log("Sending to external contractor:", { tasks, packageData });
+    // Here you would send the task package to external contractor
+    setSelectedTasks([]);
+    setShowBulkActions(false);
   };
 
   const handleSort = (field: string) => {
@@ -235,13 +270,12 @@ export default function Tasks() {
         </div>
         <div className="flex items-center gap-3">
           <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as any)} className="w-full max-w-2xl">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="task-list">Task List</TabsTrigger>
               <TabsTrigger value="kanban">Kanban</TabsTrigger>
               <TabsTrigger value="gantt">Gantt</TabsTrigger>
               <TabsTrigger value="external">External</TabsTrigger>
               <TabsTrigger value="workflow">Workflow</TabsTrigger>
-              <TabsTrigger value="digital-twin">Digital Twin</TabsTrigger>
             </TabsList>
           </Tabs>
           <Button size="sm" onClick={() => setNewTaskOpen(true)}>
@@ -290,7 +324,13 @@ export default function Tasks() {
       {/* Task Views */}
       <Tabs value={viewMode} className="w-full">
         <TabsContent value="task-list">
-          <TaskCompactView tasks={sortedTasks} onEditTask={handleEditTask} />
+          <TaskCompactView 
+            tasks={sortedTasks} 
+            onEditTask={handleEditTask}
+            selectedTasks={selectedTasks}
+            onTaskSelect={handleTaskSelect}
+            onSelectAll={handleSelectAll}
+          />
         </TabsContent>
 
         <TabsContent value="kanban">
@@ -298,7 +338,7 @@ export default function Tasks() {
         </TabsContent>
 
         <TabsContent value="gantt">
-          <TaskGanttView tasks={filteredTasks} />
+          <InteractiveGanttView tasks={filteredTasks} />
         </TabsContent>
 
         <TabsContent value="external">
@@ -307,10 +347,6 @@ export default function Tasks() {
 
         <TabsContent value="workflow">
           <EnhancedWorkflowView />
-        </TabsContent>
-
-        <TabsContent value="digital-twin">
-          <DigitalTwinTask />
         </TabsContent>
       </Tabs>
 
@@ -330,6 +366,19 @@ export default function Tasks() {
           setSelectedTask(null);
         }}
       />
+
+      {/* Bulk Actions */}
+      {showBulkActions && (
+        <BulkActions
+          selectedTasks={selectedTasks.map(id => filteredTasks.find(task => task.id === id)).filter(Boolean)}
+          onClose={() => {
+            setSelectedTasks([]);
+            setShowBulkActions(false);
+          }}
+          onApplyChanges={handleApplyBulkChanges}
+          onSendToExternal={handleSendToExternal}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Table,
   TableBody,
@@ -19,11 +20,15 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, Settings, Calendar, Clock, User, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Edit, Settings, Calendar, Clock, User, ArrowUpDown, ArrowUp, ArrowDown, Database } from "lucide-react";
+import { DigitalTwinTask } from "@/components/digital-twin/DigitalTwinTask";
 
 interface TaskCompactViewProps {
   tasks: any[];
   onEditTask: (task: any) => void;
+  selectedTasks?: string[];
+  onTaskSelect?: (taskId: string, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
 }
 
 const getStatusColor = (status: string) => {
@@ -45,7 +50,13 @@ const getPriorityColor = (priority: string) => {
   }
 };
 
-export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
+export function TaskCompactView({ 
+  tasks, 
+  onEditTask, 
+  selectedTasks = [], 
+  onTaskSelect = () => {}, 
+  onSelectAll = () => {} 
+}: TaskCompactViewProps) {
   const [visibleColumns, setVisibleColumns] = useState({
     title: true,
     status: true,
@@ -155,6 +166,12 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={selectedTasks.length === tasks.length && tasks.length > 0}
+                  onCheckedChange={onSelectAll}
+                />
+              </TableHead>
               {visibleColumns.title && (
                 <TableHead>
                   <Button 
@@ -255,11 +272,18 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
               {visibleColumns.actualHours && <TableHead>Actual Hours</TableHead>}
               {visibleColumns.tags && <TableHead>Tags</TableHead>}
               {visibleColumns.actions && <TableHead>Actions</TableHead>}
+              <TableHead>Digital Twin</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {sortedTasks.map((task) => (
               <TableRow key={task.id} className="hover:bg-accent/50">
+                <TableCell>
+                  <Checkbox
+                    checked={selectedTasks.includes(task.id)}
+                    onCheckedChange={(checked) => onTaskSelect(task.id, !!checked)}
+                  />
+                </TableCell>
                 {visibleColumns.title && (
                   <TableCell className="font-medium">
                     <div>
@@ -368,6 +392,24 @@ export function TaskCompactView({ tasks, onEditTask }: TaskCompactViewProps) {
                     </Button>
                   </TableCell>
                 )}
+                <TableCell>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <Database className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-6xl max-h-[90vh]">
+                      <DialogHeader>
+                        <DialogTitle>Digital Twin - {task.title}</DialogTitle>
+                        <DialogDescription>
+                          Полная история и состояние задачи
+                        </DialogDescription>
+                      </DialogHeader>
+                      <DigitalTwinTask />
+                    </DialogContent>
+                  </Dialog>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
