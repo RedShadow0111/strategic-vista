@@ -14,7 +14,246 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contractor_bids: {
+        Row: {
+          bid_amount: number
+          contractor_id: string
+          created_at: string
+          id: string
+          job_id: string
+          proposal: string
+          status: string | null
+          timeline: string
+          updated_at: string
+        }
+        Insert: {
+          bid_amount: number
+          contractor_id: string
+          created_at?: string
+          id?: string
+          job_id: string
+          proposal: string
+          status?: string | null
+          timeline: string
+          updated_at?: string
+        }
+        Update: {
+          bid_amount?: number
+          contractor_id?: string
+          created_at?: string
+          id?: string
+          job_id?: string
+          proposal?: string
+          status?: string | null
+          timeline?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contractor_bids_contractor_id_fkey"
+            columns: ["contractor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contractor_bids_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_assignments: {
+        Row: {
+          bid_id: string
+          client_feedback: string | null
+          client_rating: number | null
+          contractor_feedback: string | null
+          contractor_id: string
+          contractor_rating: number | null
+          created_at: string
+          end_date: string | null
+          final_amount: number | null
+          id: string
+          job_id: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          bid_id: string
+          client_feedback?: string | null
+          client_rating?: number | null
+          contractor_feedback?: string | null
+          contractor_id: string
+          contractor_rating?: number | null
+          created_at?: string
+          end_date?: string | null
+          final_amount?: number | null
+          id?: string
+          job_id: string
+          start_date?: string
+          updated_at?: string
+        }
+        Update: {
+          bid_id?: string
+          client_feedback?: string | null
+          client_rating?: number | null
+          contractor_feedback?: string | null
+          contractor_id?: string
+          contractor_rating?: number | null
+          created_at?: string
+          end_date?: string | null
+          final_amount?: number | null
+          id?: string
+          job_id?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_assignments_bid_id_fkey"
+            columns: ["bid_id"]
+            isOneToOne: false
+            referencedRelation: "contractor_bids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_assignments_contractor_id_fkey"
+            columns: ["contractor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_assignments_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_postings: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          category: string
+          client_id: string
+          created_at: string
+          deadline: string | null
+          description: string
+          duration: string | null
+          experience_level: string
+          hourly_rate: number | null
+          id: string
+          job_type: string
+          skills_required: string[] | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          category: string
+          client_id: string
+          created_at?: string
+          deadline?: string | null
+          description: string
+          duration?: string | null
+          experience_level: string
+          hourly_rate?: number | null
+          id?: string
+          job_type: string
+          skills_required?: string[] | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string
+          client_id?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          duration?: string | null
+          experience_level?: string
+          hourly_rate?: number | null
+          id?: string
+          job_type?: string
+          skills_required?: string[] | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_postings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company_name: string | null
+          completed_jobs: number | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          location: string | null
+          phone: string | null
+          rating: number | null
+          skills: string[] | null
+          updated_at: string
+          user_id: string
+          user_type: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_name?: string | null
+          completed_jobs?: number | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          location?: string | null
+          phone?: string | null
+          rating?: number | null
+          skills?: string[] | null
+          updated_at?: string
+          user_id: string
+          user_type?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_name?: string | null
+          completed_jobs?: number | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          location?: string | null
+          phone?: string | null
+          rating?: number | null
+          skills?: string[] | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
